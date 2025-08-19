@@ -1,0 +1,106 @@
+$primary-marron:#B38E5D !important;
+
+.pageloader {
+    background: rgba(45, 46, 47, 0.8) !important;
+}
+.titulo {
+    display: flex;
+ 	justify-content:flex-start;
+ 	align-items:stretch;
+ 	flex-wrap: wrap;
+ 	align-content: center;
+}
+.menu {
+    .menu-label {
+        .tag:not(body) {
+            font-size: 0.55rem;
+            border-radius: 16px !important;
+            background-color: $primary-marron;
+        }
+    }
+    .menu-list {
+        li i:not(li.is-active i) {
+            color: hsl(141, 71%, 48%);
+        }
+        li.is-active, li.is-active a{
+            background: #9D2449 !important;
+            color:#FFFFFF !important;
+        }
+        li.is-highlighted, .block-list.is-highlighted > li {
+            border-left: 5px hsl(0deg 97.75% 24.76%) solid !important;
+        }
+        li:not(li.is-active):hover {
+            background-color: rgba(10, 10, 10, 0.303) !important;
+        }
+        a:hover {
+            background-color: unset !important;
+        }
+    }
+}
+.antecedente-catastral, .antecedente-registral {
+    .oficinas, .personal {
+        .table tbody tr:last-child {
+            font-weight: 500 !important;
+        }
+    }
+}
+.contenedor-grafica {
+    width: 100%;
+    height: 500px;
+}
+.contenido-componente {
+    .actividades-componente .toggle-text{
+        cursor: pointer !important;
+    }
+}
+.contenido-anexos {
+    .card {
+        .card-content {
+            .image {
+                cursor: pointer !important;
+            }
+        }
+        .card-footer-item {
+            padding: 0.25rem !important;
+        }
+        .buttons {
+            .tag {
+                cursor: pointer;
+            }
+            .button {
+                height: 2.0em !important;
+            }
+        }
+    }
+}
+.contenido-programa {
+    #tabla_cronograma tbody .field {
+        .is-checkradio[type=checkbox]+label::after, .is-checkradio[type=checkbox]+label:after {
+                border-width: 0.18rem !important;
+        }
+    }
+}
+.contenido-resumen {
+    #tabla-componentes {
+        td, th {
+            padding: 8px !important;
+        }
+    }
+    #tabla-aportaciones {
+        .has-background-warning {
+            background-color: #ffc107 !important;
+        }
+        .has-text-brown {
+            color: #795548 !important;
+        }
+        .has-text-blue {
+            color: #2196F3 !important;
+        }
+        td, th {
+            padding: 8px !important;
+        }
+        td .input-flotante {
+            width: 75% !important;
+        }
+    }
+}

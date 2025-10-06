@@ -15,9 +15,9 @@ const tabCat = ref(true)
 
 const tabRpp = ref(false)
 
-const vertiente = ref(project.vertiente || '1')
+const vertiente = ref(project.vertiente || 1)
 
-const componentes = reactive(project.desarrollo.componentes)
+const componentes = reactive(project.estructura.desarrollo.componentes)
 
 const componente = computed(() => config.findElementMenu('desarrollo'))
 
@@ -29,7 +29,7 @@ const vertienteActual = computed(() => {
   if (vertiente.value === '1,2') {
     return tabCat.value ? 1 : 2
   }
-  return parseInt(vertiente.value)
+  return +vertiente.value
 })
 
 const componentesVertiente = () => {
@@ -39,7 +39,7 @@ const componentesVertiente = () => {
   return vertiente.value === '1' ? componentes.pec : componentes.pem
 }
 
-const selectTab = (value) => {
+const selectTab = (value: boolean) => {
   if (value) {
     return
   }
@@ -48,7 +48,7 @@ const selectTab = (value) => {
 }
 
 onBeforeMount(() => {
-  if (!project.desarrollo.inicializado && project.id) {
+  if (!project.estructura.desarrollo.inicializado && project.id) {
     project.obtenerDesarrollo()
   }
 })
@@ -57,7 +57,7 @@ onBeforeMount(() => {
 <template>
   <div class="container">
     <div class="box">
-      <h4 class="title is-size-4-desktop">{{ componente.orden }}.- DESARROLLO DEL PROYECTO</h4>
+      <h4 class="title is-size-4-desktop">{{ componente?.orden }}.- DESARROLLO DEL PROYECTO</h4>
       <template v-if="vertiente === '1,2'">
         <div class="tabs is-centered is-boxed is-medium">
           <ul>
@@ -82,20 +82,20 @@ onBeforeMount(() => {
         <div class="container" id="tabs-content">
           <div :class="{ 'is-hidden': !tabCat }">
             <Componente
-              v-for="(component, index) in componentes.pec"
+              v-for="(component, _index) in componentes.pec"
               :key="component.id"
               :componente="component"
-              :indice="componente.orden"
+              :indice="componente?.orden"
               :anio="anio"
             >
             </Componente>
           </div>
           <div :class="{ 'is-hidden': !tabRpp }">
             <Componente
-              v-for="(component, index) in componentes.pem"
+              v-for="(component, _index) in componentes.pem"
               :key="component.id"
               :componente="component"
-              :indice="componente.orden"
+              :indice="componente?.orden"
               :anio="anio"
             >
             </Componente>
@@ -107,7 +107,7 @@ onBeforeMount(() => {
           v-for="component in componentesVertiente()"
           :key="component.id"
           :componente="component"
-          :indice="componente.orden"
+          :indice="componente?.orden"
           :anio="anio"
         >
         </Componente>

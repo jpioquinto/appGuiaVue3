@@ -2,16 +2,16 @@ import { createWebHistory, createRouter } from 'vue-router'
 
 import ContentLogin from '../components/layouts/ContentLogin.vue'
 import Introduccion from '../components/project/Introduccion.vue'
-import Antecedente from '../components/project/Antecedente.vue'
+import Antecedente from '../components/project/AntecedenteInstitucion.vue'
 import Situacion from '../components/project/Situacion.vue'
-import Desarrollo from '../components/project/Desarrollo.vue'
+import Desarrollo from '../components/project/DesarrolloProyecto.vue'
 import Objetivo from '../components/project/Objetivo.vue'
 import Programa from '../components/project/Programa.vue'
 import Resumen from '../components/project/Resumen.vue'
 import Resultados from '../components/project/Resultados.vue'
-import Anexos from '../components/project/Anexos.vue'
+import Anexos from '../components/project/AnexosActividad.vue'
 import Inicio from '../components/project/Inicio.vue'
-import Logout from '../components/login/Logout.vue'
+import Logout from '../components/login/LogoutApp.vue'
 
 const router = createRouter({
   history: createWebHistory(),

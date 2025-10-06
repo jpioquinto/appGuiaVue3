@@ -1,77 +1,71 @@
 <script setup lang="ts">
 import { computed, ref, reactive } from 'vue'
+
+import type { AppurtenantModalProps } from '@/types/activityProps'
 import RemoverAnexo from '../actions/RemoverAnexo.vue'
-import shortid from 'shortid'
+import { isNumeric, makeHash } from '@/util'
+import type { Anexo } from '@/types/activity'
 
-const props = defineProps([
-  'anio',
-  'anexos',
-  'componente_id',
-  'vertiente',
-  'actividad_id',
-  'estatus',
-  'nombre',
-  'numActividad',
-  'activa',
-])
+const props = defineProps<AppurtenantModalProps>()
 
-const emit = defineEmits(['agregarAnexo'])
+const emit = defineEmits(['agregarAnexo', 'cerrarModalAnexo'])
 
 const copiaAnexos = reactive([...props.anexos]) //clone(props.anexos);
 
-const archivo = ref(null)
+const archivo = ref<File | null>(null)
 
-const cargando = ref(false)
+const cargando = ref<boolean>(false)
 
-const porcentaje = ref(0)
+const porcentaje = ref<number>(0)
 
-const cargados = ref(0)
+const cargados = ref<number>(0)
 
-const total = ref(0)
+const total = ref<number>(0)
 
 const aceptar = () => {
   emit('agregarAnexo', copiaAnexos)
 }
 
-const removerAnexo = ($idAnexo) => {
+const removerAnexo = ($idAnexo: Anexo['id_anexo']) => {
   const index = copiaAnexos.findIndex((anexo) => anexo.id_anexo == $idAnexo)
   index != -1 ? copiaAnexos.splice(index, 1) : undefined
 }
 
-const preCargarAnexo = ($event) => {
-  //let archivos = $event.target.files;
-  total.value = $event.target.files.length
-  porcentaje.value = 0
+const preCargarAnexo = ($event: Event) => {
+  if ($event.target instanceof HTMLInputElement) {
+    total.value = $event?.target?.files?.length || 0
+    porcentaje.value = 0
 
-  for (cargados.value = 0; cargados.value < total.value; cargados.value++) {
-    archivo.value = $event.target.files[cargados.value]
+    for (cargados.value = 0; cargados.value < total.value; cargados.value++) {
+      archivo.value = $event?.target?.files ? $event.target.files[cargados.value] : null
 
-    const reader = new FileReader()
-    reader.onerror = errorHandler
-    reader.onprogress = updateProgress
-    reader.onabort = onAbort
-    reader.onloadstart = onLoadStart
-    reader.onload = ((archivo) => {
-      return (e) => {
-        onLoad(archivo)
-      }
-    })(archivo.value)
-    reader.readAsBinaryString(archivo.value)
+      const reader = new FileReader()
+      reader.onerror = errorHandler
+      reader.onprogress = updateProgress
+      reader.onabort = onAbort
+      reader.onloadstart = onLoadStart
+      reader.onload = ((archivo: File) => {
+        return (e: ProgressEvent<FileReader>) => {
+          onLoad(archivo)
+        }
+      })(archivo.value as File)
+      reader.readAsArrayBuffer(archivo.value as File)
+    }
   }
 }
 
-const onLoadStart = (evt) => {
+const onLoadStart = (evt: ProgressEvent<FileReader>) => {
   if (!cargando.value) {
     cargando.value = true
   }
 }
 
-const onLoad = (archivo) => {
+const onLoad = (archivo: File) => {
   copiaAnexos.push({
     ext: obtenerExtension(archivo.name),
     nombre_anterior: archivo.name,
     id_actividad: props.actividad_id,
-    id_anexo: shortid.generate(),
+    id_anexo: makeHash(7),
     nombre: archivo.name,
     archivo: archivo,
     descripcion: generarDescripcion() + ' - ' + archivo.name,
@@ -86,29 +80,32 @@ const onLoad = (archivo) => {
   }, 2000)
 }
 
-const onAbort = (evt) => {
+const onAbort = (evt: ProgressEvent<FileReader>) => {
   alert('File read cancelled')
   cargando.value = false
   porcentaje.value = 0
 }
 
-const errorHandler = (evt) => {
-  switch (evt.target.error.code) {
-    case evt.target.error.NOT_FOUND_ERR:
+const errorHandler = (evt: ProgressEvent<FileReader>) => {
+  if (evt.target?.error == null) {
+    return
+  }
+  switch (evt.target.error?.name) {
+    case 'NotFoundError':
       alert('File Not Found!')
       break
-    case evt.target.error.NOT_READABLE_ERR:
+    case 'NotReadableError':
       alert('File is not readable')
       break
-    case evt.target.error.ABORT_ERR:
+    case 'AbortError':
       break // noop
     default:
       alert('An error occurred reading this file.')
   }
 }
 
-const updateProgress = (evt) => {
-  if (!evt.lengthComputable) {
+const updateProgress = (evt: ProgressEvent<FileReader>) => {
+  if (!evt?.lengthComputable) {
     return
   }
   porcentaje.value =
@@ -117,15 +114,15 @@ const updateProgress = (evt) => {
       : obtenerPorcentaje(evt.loaded, evt.total)
 }
 
-const obtenerPorcentaje = (cargado, total) => {
+const obtenerPorcentaje = (cargado: number, total: number) => {
   const $porcentaje = Math.round((cargado / total) * 100)
   return $porcentaje <= 100 ? $porcentaje : porcentaje.value
 }
 
-const calcularPorcentaje = (cargado, total) => {
+const calcularPorcentaje = (cargado: number, total: number) => {
   const proporcion = obtenerProporcionPorcentaje()
   const $porcentaje = Math.round((cargado / total) * 100)
-  if (!isNumeric(proporcion) || proporcion == 0) {
+  if (!isNumeric(proporcion.toString()) || proporcion == 0) {
     return 0
   }
   if ($porcentaje < 100) {
@@ -134,16 +131,16 @@ const calcularPorcentaje = (cargado, total) => {
   return (porcentaje.value += proporcion)
 }
 
-const obtenerProporcionPorcentaje = () => {
-  return isNumeric(total.value) && total.value > 0 ? Math.round(100 / total.value) : 0
+const obtenerProporcionPorcentaje = (): number => {
+  return isNumeric(total.value.toString()) && total.value > 0 ? Math.round(100 / total.value) : 0
 }
 
-const obtenerExtension = (nombre) => {
+const obtenerExtension = (nombre: string): string => {
   const cadenas = nombre.toString().split('.')
   return cadenas[cadenas.length - 1].replace(/^\s+/g, '').replace(/\s+$/g, '')
 }
 
-const generarDescripcion = () => {
+const generarDescripcion = (): string => {
   return props.nombre + ' ' + props.anio + ' Actividad #' + props.numActividad
 }
 </script>

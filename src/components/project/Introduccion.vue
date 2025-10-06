@@ -10,7 +10,7 @@ const config = useConfigStore()
 
 const project = useProjectStore()
 
-const introduccion = reactive(project.introduccion)
+const introduccion = reactive(project.estructura.introduccion)
 
 const componente = computed(() => config.findElementMenu('introduccion'))
 
@@ -44,11 +44,11 @@ const formatearPresupuesto = (event) => {
 }
 
 const capturarIntroduccion = () => {
-  project.actualizarIntroduccion(project.introduccion.captura)
+  project.actualizarIntroduccion(project.estructura.introduccion?.captura?.toString()!)
 }
 
 onBeforeMount(() => {
-  if (!project.introduccion.inicializado) {
+  if (!project.estructura.introduccion.inicializado) {
     project.obtenerProyecto().then((response) => {})
   }
 })

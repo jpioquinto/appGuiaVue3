@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Menu from './sidebar/Menu.vue'
+import Menu from './sidebar/MenuSideBar.vue'
 import { computed, onMounted } from 'vue'
 import { useConfigStore } from '@/stores/config'
 

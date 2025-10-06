@@ -11,7 +11,7 @@ const project = useProjectStore()
 
 const componente = computed(() => config.findElementMenu('situacion'))
 
-const situacion = reactive(project.situacion)
+const situacion = reactive(project.estructura.situacion)
 
 const datosSituacion = computed(() => {
   if (project.vertiente === '1,2') {
@@ -23,17 +23,17 @@ const datosSituacion = computed(() => {
 const ComponentSituacion = defineAsyncComponent(() => {
   return new Promise((resolve, reject) => {
     if (project.vertiente === '1,2') {
-      resolve(import('./situation/Catastro.vue'))
+      resolve(import('./situation/Catastro.vue') as never)
       return
     }
     project.vertiente === 2
-      ? resolve(import('./situation/Registro.vue'))
-      : resolve(import('./situation/Catastro.vue'))
+      ? resolve(import('./situation/Registro.vue') as never)
+      : resolve(import('./situation/Catastro.vue') as never)
   })
 })
 
 onBeforeMount(() => {
-  if (!project.situacion.inicializado) {
+  if (!project.estructura.situacion.inicializado) {
     project.obtenerSituacion()
   }
 })
@@ -42,7 +42,7 @@ onBeforeMount(() => {
 <template>
   <div class="content">
     <div class="box">
-      <h4>{{ componente.orden }}.- SITUACIÓN ACTUAL Y ESTIMACIÓN DE AVANCE</h4>
+      <h4>{{ componente?.orden }}.- SITUACIÓN ACTUAL Y ESTIMACIÓN DE AVANCE</h4>
       <ComponentSituacion :situacion="datosSituacion" :cargado="situacion.inicializado">
         <template v-slot:filas>
           <tbody v-html="datosSituacion.tabla"></tbody>

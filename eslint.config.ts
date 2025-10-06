@@ -15,7 +15,10 @@ export default defineConfigWithVueTs(
     rules: {
       // Note: you must disable the base rule as it can report incorrect errors
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { args: 'none', caughtErrors: 'none', ignoreRestSiblings: true, ignorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
       'no-unused-expressions': 'off',
       '@typescript-eslint/no-unused-expressions': [

@@ -3,20 +3,19 @@ import { ref, onBeforeMount } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 
 //import { useConfigStore } from '@/stores/config'
+import type { ObjectiveModalProps } from '@/types/componentProps'
 import { useProjectStore } from '@/stores/project'
 import type { Objective } from '@/types/component'
 
-const props = defineProps(['componente', 'vertiente', 'objetivoActual', 'activa'])
+const props = defineProps<ObjectiveModalProps>()
 
 const emit = defineEmits(['cerrar'])
 
-//const config = useConfigStore()
-
 const project = useProjectStore()
 
-const objetivo = ref('')
+const objetivo = ref<string>('')
 
-const alcance = ref('')
+const alcance = ref<string>('')
 
 const accionObjetivo = () => {
   if (!props.objetivoActual) {
@@ -31,7 +30,7 @@ const editarObjetivo = () => {
   }
 
   const data = datosObjetivo()
-  data['index'] = props.objetivoActual.orden - 1
+  data['index'] = props?.objetivoActual?.orden! - 1
   project.editarObjetivoComponente(data)
 
   emit('cerrar')

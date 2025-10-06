@@ -16,9 +16,9 @@ export default {
 
     const project = useProjectStore()
 
-    const componentes = reactive(clone(project.desarrollo.componentes))
+    const componentes = reactive(clone(project.estructura.desarrollo.componentes))
 
-    const meses = ref([...project.programa.meses])
+    const meses = ref([...project.estructura.programa.meses])
 
     const homologos = reactive(project.homologos)
 

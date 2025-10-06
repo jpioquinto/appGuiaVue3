@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { CatComponentsSchema } from '@/schema/component-schema'
-import type { Component, Components } from './component'
+import type { CatComponents, Component, Components } from './component'
+import type { Entregable, Entregables, Municipios, SubComponentes, Unidades } from './activity'
 
 type Diagnostico = {
   anio: null | number
@@ -54,8 +55,8 @@ type Objetivo = Inicializado & {
   captura: null | string
 }
 
-type CatalogComponents = {
-  datos: z.infer<typeof CatComponentsSchema>
+export type CatalogComponents = {
+  datos: CatComponents
 }
 
 type VertCatalogComponents = {
@@ -69,10 +70,10 @@ type ComponentesDesarrollo = {
 }
 
 type CatalogosDesarrollo = {
-  subComponentes: object
-  entregables: object
-  unidades: object
-  municipios: object
+  subComponentes: Record<Component['id'], SubComponentes>
+  entregables: Record<Component['id'], Entregables>
+  unidades: Unidades
+  municipios: Municipios
 }
 
 type Desarrollo = Inicializado & {
@@ -107,7 +108,7 @@ type Resumen = Inicializado & {
   distribucionV2: FilasDistribucion
   porcentaje: Distribucion
   listado: object
-  observaciones: null | number
+  observaciones: null | string
   millar: null | number
   alMillar: number
   porcDecimales: number

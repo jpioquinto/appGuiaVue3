@@ -9,6 +9,8 @@ import AccionDescarga from './partial/AccionDescarga.vue'
 import { useRouter } from 'vue-router'
 import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
+import type { Activities } from '@/types/activity'
+import type { Components } from '@/types/component'
 
 defineProps(['logo', 'nickname'])
 
@@ -47,8 +49,8 @@ const seguimiento = () => {
   }
 }
 
-const procesarActividades = (listado) => {
-  return listado.map((actividad) => {
+const procesarActividades = (listado: any) => {
+  return listado.map((actividad: any) => {
     delete actividad.conIVA
     delete actividad.descAct
     delete actividad.descEntregable
@@ -63,8 +65,8 @@ const procesarActividades = (listado) => {
   })
 }
 
-const procesarComponentes = (componentes) => {
-  return componentes.map((componente) => {
+const procesarComponentes = (componentes: any) => {
+  return componentes.map((componente: any) => {
     delete componente.actualizado
     delete componente.vertiente
     delete componente.posicion
@@ -74,13 +76,13 @@ const procesarComponentes = (componentes) => {
   })
 }
 
-const filtrarComponentes = (componentes) => {
+const filtrarComponentes = (componentes: Components) => {
   return componentes.filter((componente) => componente.actualizado)
 }
 
 const cerrarSesion = () => {
   if (config.getToken) {
-    config.destruirToken().then(() => {
+    config?.destruirToken()!.then(() => {
       config.asignarLayout('ContentLogin')
       router.push({ name: 'login' })
       setTimeout(() => {
@@ -99,7 +101,9 @@ const descarga = () => {
 
     const fileLink = document.createElement('a')
 
-    fileLink.href = window.URL.createObjectURL(new Blob([data], { type: 'application/pdf' }))
+    fileLink.href = window.URL.createObjectURL(
+      new Blob([data as BlobPart], { type: 'application/pdf' }),
+    )
     fileLink.setAttribute('download', 'Proyecto Ejecutivo de Modernización.pdf')
     fileLink.setAttribute('id', 'docPDF')
 
@@ -138,8 +142,8 @@ const guardar = () => {
     seguimiento: { ...seguimiento() },
     desarrollo: procesarComponentes(
       filtrarComponentes([
-        ...clone(project.estructura.desarrollo.componentes)?.pec,
-        ...clone(project.estructura.desarrollo.componentes)?.pem,
+        ...project.estructura.desarrollo.componentes?.pec,
+        ...project.estructura.desarrollo.componentes?.pem,
       ]),
     ),
   }
@@ -183,8 +187,8 @@ const guardar = () => {
         </div>
         <div class="navbar-menu" :class="{ 'is-active': isMobile }" id="navMenuGuia">
           <div class="navbar-end">
-            <AccionGuardar v-if="config.acciones[12]" :clase="'is-size-5'" @guardar="guardar" />
-            <AccionDescarga v-if="config.acciones[9]" :clase="'is-size-5'" @descarga="descarga" />
+            <AccionGuardar v-if="config?.acciones[12]!" :clase="'is-size-5'" @guardar="guardar" />
+            <AccionDescarga v-if="config?.acciones[9]!" :clase="'is-size-5'" @descarga="descarga" />
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link has-text-weight-medium">
                 <span class="icon is-small"> <i class="fas fa-user-circle"></i> </span>&nbsp;

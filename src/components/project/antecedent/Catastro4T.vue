@@ -8,11 +8,11 @@ const project = useProjectStore()
 
 const ComponentPersonal = defineAsyncComponent(() => {
   return new Promise((resolve, reject) => {
-    if (project.anio > 2019) {
-      resolve(import('./Personal4TV2.vue'))
+    if (project.anio && project.anio > 2019) {
+      resolve(import('./Personal4TV2.vue') as never)
       return
     }
-    resolve(import('./Personal4TV1.vue'))
+    resolve(import('./Personal4TV1.vue') as never)
   })
 })
 </script>

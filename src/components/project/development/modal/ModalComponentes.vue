@@ -1,27 +1,33 @@
 <script setup lang="ts">
 import { computed, ref, reactive, onBeforeMount, onMounted } from 'vue'
+
+import type { CatComponents, Component, Components } from '@/types/component'
+import type { ComponentModalProps } from '@/types/componentProps'
+import type { CatalogComponents } from '@/types/project'
 import { useProjectStore } from '@/stores/project'
 
-const props = defineProps(['activa', 'vertiente'])
+const props = defineProps<ComponentModalProps>()
 
 const emit = defineEmits(['cerrar'])
 
 const project = useProjectStore()
 
-const listadoComponentes = ref([])
+const listadoComponentes = ref([]) //<CatComponents>
 
-const componentes = ref([])
+const componentes = ref<CatalogComponents['datos']>([])
 
-const tags = ref([])
+const tags = ref<CatComponents>([])
 
-const estaCargado = (idComponente) => {
+const estaCargado = (idComponente: Component['id']) => {
   const $componentes =
-    props.vertiente == '1' ? project.desarrollo.componentes.pec : project.desarrollo.componentes.pem
+    props.vertiente === 1
+      ? project.estructura.desarrollo.componentes.pec
+      : project.estructura.desarrollo.componentes.pem
   const componente = $componentes.find((componente) => componente.id == idComponente)
   return componente
 }
 
-const seleccionComponente = () => {
+const seleccionComponente = (): void => {
   listadoComponentes.value.forEach((value, index) => {
     componentes.value.forEach((val, key) => {
       if (val.componentes_id != value) {
@@ -34,22 +40,22 @@ const seleccionComponente = () => {
     (componente) => componente.deshabilitado === true && !estaCargado(componente.componentes_id),
   )
 }
-const agregarComponentes = () => {
+const agregarComponentes = (): void => {
   if (tags.value == null || tags.value.length == 0) {
     return
   }
   let indice =
     project.obtenerVertienteProyecto === '1,2'
       ? project.obtenerTotalComponentesPEC
-      : parseInt(project.obtenerVertienteProyecto) == 1
+      : +project.obtenerVertienteProyecto! == 1
         ? project.obtenerTotalComponentesPEC
         : project.obtenerTotalComponentesPEM
-  const listaComponentes = []
-  tags.value.forEach((value, key) => {
-    const componente = {
-      id: value.componentes_id,
-      vertiente: value.modelos_id,
-      nombre: value.nombre,
+  const listaComponentes: Components = []
+  tags.value.forEach(($value, key) => {
+    const componente: Component = {
+      id: $value.componentes_id,
+      vertiente: $value.modelos_id,
+      nombre: $value.nombre,
       orden: indice + 1,
       situacion: null,
       objetivos: [],
@@ -58,12 +64,12 @@ const agregarComponentes = () => {
       estrategia: null,
       aporteFederal: 0,
       aporteEstatal: 0,
-      posicion: value.orden,
+      posicion: $value.orden,
       total: 0,
       actualizado: false,
     }
     if (componente.id == 14) {
-      componente['acervo'] = { listado: [], oficinas: [] }
+      componente.acervo = { listado: [], oficinas: [] }
     }
     listaComponentes.push(componente)
     indice++
@@ -74,12 +80,17 @@ const agregarComponentes = () => {
 }
 onBeforeMount(() => {
   if (project.listadoComponentes(props.vertiente) == null) {
-    project.obtenerComponentes({ vertiente: props.vertiente }).then((response) => {
-      componentes.value = response.data.datos
-    })
+    project
+      .obtenerComponentes({ vertiente: props.vertiente })
+      .then((data: CatalogComponents['datos'] | unknown) => {
+        componentes.value = data ? (data as CatalogComponents['datos']) : componentes.value
+      })
     return
   }
-  componentes.value = project.listadoComponentes(props.vertiente).datos
+  const listComponents = project.listadoComponentes(props.vertiente)
+  if (listComponents?.datos) {
+    componentes.value = listComponents.datos
+  }
 })
 </script>
 <template>

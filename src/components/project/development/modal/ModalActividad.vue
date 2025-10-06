@@ -3,12 +3,37 @@ import { computed, ref, reactive, onBeforeMount, onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, requiredIf, minValue, minLength } from '@vuelidate/validators'
 import { notify } from '@kyvg/vue3-notification'
-import shortid from 'shortid'
+import numeral from 'numeral'
+import {
+  makeHash,
+  clone,
+  isNumeric,
+  isKeyCtrl,
+  isKeySpecial,
+  isNumericPositive,
+  removeFormatNumeric,
+} from '@/util'
 
 import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
+import type {
+  Activity,
+  Anexos,
+  CatActividad,
+  CatActividades,
+  CatSubActividades,
+  SubComponentes,
+  Municipios,
+  Unidades,
+  Entregables,
+} from '@/types/activity'
+import type { ActivityModalProps, DataMask, ErrorActivity } from '@/types/activityProps'
+import { SubComponentesSchema } from '@/schema/activity-schema'
+import type { Component } from '@/types/component'
+import { keyof } from 'zod'
 
-const props = defineProps(['componente_id', 'vertiente', '_actividad', 'agregar', 'activa'])
+//const props = defineProps(['componente_id', 'vertiente', '_actividad', 'agregar', 'activa'])
+const props = defineProps<ActivityModalProps>()
 
 const config = useConfigStore()
 
@@ -16,23 +41,23 @@ const project = useProjectStore()
 
 const emit = defineEmits(['cerrar'])
 
-const subComponentes = ref([])
-const actividades = ref([])
-const subActividades = ref([])
-const catalogoSubActividades = ref({})
-const entregables = ref([])
-const unidades = ref([])
-const municipios = ref([])
+const catalogoSubActividades = ref<Record<number, CatSubActividades>>({})
+const subActividades = ref<CatSubActividades>([])
+const subComponentes = ref<SubComponentes>([])
+const actividades = ref<CatActividades>([])
+const entregables = ref<Entregables>([])
+const municipios = ref<Municipios>([])
+const unidades = ref<Unidades>([])
 
-const checkboxTodos = ref(false)
-const submit = ref(false)
-const error = reactive({ cantidad: null, costo: null })
+const error = reactive<ErrorActivity>({ cantidad: null, costo: null })
+const checkboxTodos = ref<boolean>(false)
+const submit = ref<boolean>(false)
 
-const actividad = reactive(
+const actividad: Activity = reactive(
   props.agregar
     ? {
-        anexos: [],
-        id: shortid.generate(),
+        anexos: [] as Anexos,
+        id: makeHash(6),
         descSubcomp: null,
         descAct: null,
         descSubAct: null,
@@ -44,7 +69,7 @@ const actividad = reactive(
         desc: '',
         entregable: 0,
         unidad: 0,
-        munpios: [],
+        munpios: [] as number[],
         cantidad: 1,
         costo: 0,
         iva: 0,
@@ -56,15 +81,15 @@ const actividad = reactive(
         placeHolderDesc: '',
         placeHolderEnt: '',
       }
-    : clone(props._actividad),
+    : (clone(props.currentActivity) as Activity),
 )
 
-const $iva = 1 + project.obtenerIVA / 100
+const $iva: number = 1 + project.obtenerIVA / 100
 
-const mascara = reactive({
-  cantidad: 1,
-  costo: 0,
-  iva: 0,
+const mascara = reactive<DataMask>({
+  cantidad: '1',
+  costo: '0',
+  iva: '0',
 })
 
 const rules = computed(() => ({
@@ -77,9 +102,7 @@ const rules = computed(() => ({
     minValue: minValue(1),
   },
   subact: {
-    required: requiredIf(function (subactModel) {
-      return subActividades.value.length > 0 && subactModel.subact == null
-    }),
+    required: requiredIf(subActividades.value.length > 0 && actividad.subact == null),
   },
   entregable: {
     required,
@@ -113,20 +136,19 @@ const seleccionSubcomponente = () => {
     (subcomponente) => subcomponente.id_subcomponente === actividad.subcomp,
   )
   if (subcomponente.length > 0) {
-    actividades.value = subcomponente[0].hasOwnProperty('actividades')
-      ? subcomponente[0].actividades
-      : []
+    actividades.value = subcomponente[0]?.actividades || []
     actividades.value.length > 0 ? seleccionActividad() : undefined
   }
 }
 
 const seleccionActividad = () => {
-  if (!isInteger(actividad.act)) {
+  if (!actividad.act) {
     return
   }
   if (!catalogoSubActividades.value.hasOwnProperty(actividad.act)) {
-    project.obtenerSubActividades(actividad.act).then((response) => {
-      subActividades.value = catalogoSubActividades.value[actividad.act] = response.data
+    project.obtenerSubActividades(actividad.act).then((data) => {
+      subActividades.value = catalogoSubActividades.value[actividad.act] =
+        (data as CatSubActividades) || []
     })
   } else {
     subActividades.value = catalogoSubActividades.value[actividad.act]
@@ -155,88 +177,98 @@ const selectMunicipio = () => {
   }
 }
 
-const switchIVA = (event) => {
+const switchIVA = (event: MouseEvent) => {
   calcularIVA()
 }
 
-const tipoRecurso = (value) => {
-  actividad.tipoRecurso = parseInt(value)
-  recursoProyecto.value = parseInt(value) == 1
-  recursoPropio.value = parseInt(value) == 2
+const tipoRecurso = (value: number) => {
+  actividad.tipoRecurso = value
+  recursoProyecto.value = value == 1
+  recursoPropio.value = value == 2
 }
 
-const entradaNumerica = (event) => {
-  const keynum = window.event ? window.event.keyCode : event.which
-
-  if (
-    (keynum == 8 || keynum == 46) &&
-    isNumericPositive(quitarFormatoNumerico(mascara[event.target.name]))
-  ) {
-    return true
+const entradaNumerica = (event: KeyboardEvent) => {
+  if (event.target instanceof HTMLInputElement) {
+    if (
+      event.key !== 'Enter' &&
+      event.key !== '.' &&
+      !isKeySpecial(event.key) &&
+      !isKeyCtrl(event) &&
+      !isNumericPositive(removeFormatNumeric(mascara[event.target.name as keyof typeof mascara]))
+    ) {
+      event.preventDefault()
+    }
   }
-  return isNumericPositive(String.fromCharCode(keynum)) ? true : event.preventDefault()
 }
 
-const verificarCapturaNumerica = (event) => {
-  let cantidad = 0
-  if (!isNumericPositive((cantidad = quitarFormatoNumerico(mascara[event.target.name])))) {
-    mascara.iva = 0
-    error[event.target.name] = event.target.name
-    return true
+const verificarCapturaNumerica = (event: KeyboardEvent) => {
+  let cantidad: number | string = 0
+  if (event.target instanceof HTMLInputElement) {
+    if (
+      !isNumericPositive(
+        (cantidad = removeFormatNumeric(mascara[event.target.name as keyof typeof mascara])),
+      )
+    ) {
+      mascara.iva = '0'
+      error[event.target.name as keyof typeof error] = event.target.name
+      return true
+    }
+    if (
+      (event.target.name == 'cantidad' && parseFloat(cantidad) <= 0) ||
+      (event.target.name == 'costo' && parseFloat(cantidad) < 0)
+    ) {
+      mascara.iva = '0'
+      error[event.target.name as keyof typeof error] = event.target.name
+      return true
+    }
+    error[event.target.name as keyof typeof error] = null
+    calcularIVA()
   }
-  if (
-    (event.target.name == 'cantidad' && parseFloat(cantidad) <= 0) ||
-    (event.target.name == 'costo' && parseFloat(cantidad) < 0)
-  ) {
-    mascara.iva = 0
-    error[event.target.name] = event.target.name
-    return true
-  }
-  error[event.target.name] = null
-  calcularIVA()
 }
 
-const formatearCantidades = (event) => {
-  if (
-    event.target.name == 'cantidad' &&
-    isNumeric(quitarFormatoNumerico(mascara[event.target.name]))
-  ) {
-    mascara[event.target.name] = numeral(quitarFormatoNumerico(mascara[event.target.name])).format(
-      '0,0.00',
-    )
-  }
-  if (
-    event.target.name == 'costo' &&
-    isNumeric(quitarFormatoNumerico(mascara[event.target.name]))
-  ) {
-    mascara[event.target.name] = numeral(quitarFormatoNumerico(mascara[event.target.name])).format(
-      '$0,0.00',
-    )
+const formatearCantidades = (event: Event) => {
+  if (event.target instanceof HTMLInputElement) {
+    if (
+      event.target.name == 'cantidad' &&
+      isNumeric(removeFormatNumeric(mascara[event.target.name]))
+    ) {
+      mascara[event.target.name] = numeral(removeFormatNumeric(mascara[event.target.name])).format(
+        '0,0.00',
+      )
+    }
+    if (
+      event.target.name == 'costo' &&
+      isNumeric(removeFormatNumeric(mascara[event.target.name]))
+    ) {
+      mascara[event.target.name] = numeral(removeFormatNumeric(mascara[event.target.name])).format(
+        '$0,0.00',
+      )
+    }
   }
 }
 
 const calcularIVA = () => {
-  actividad.cantidad = convertirAdecimal(quitarFormatoNumerico(mascara.cantidad))
-  actividad.costo = convertirAdecimal(quitarFormatoNumerico(mascara.costo))
+  actividad.cantidad = convertirAdecimal(removeFormatNumeric(mascara.cantidad))
+  actividad.costo = convertirAdecimal(removeFormatNumeric(mascara.costo))
 
   !actividad.conIVA
     ? conIVA(actividad.cantidad, actividad.costo)
     : sinIVA(actividad.cantidad, actividad.costo)
 }
 
-const sinIVA = (cantidad, costoUnitario) => {
+const sinIVA = (cantidad: number, costoUnitario: number) => {
   mascara.iva = numeral(cantidad * costoUnitario * 0.16).format('$0,0.00')
-  actividad.iva = parseFloat(quitarFormatoNumerico(mascara.iva))
-  actividad.total = convertirAdecimal(cantidad * costoUnitario + actividad.iva)
+  actividad.iva = +removeFormatNumeric(mascara.iva)
+  actividad.total = convertirAdecimal((cantidad * costoUnitario + actividad.iva).toString())
 }
 
-const conIVA = (cantidad, costoUnitario) => {
+const conIVA = (cantidad: number, costoUnitario: number) => {
   actividad.total = cantidad * costoUnitario
   actividad.iva = actividad.total - actividad.total / $iva
   mascara.iva = numeral(actividad.iva).format('$0,0.00')
 }
 
-const convertirAdecimal = (cantidad) => {
+const convertirAdecimal = (cantidad: string): number => {
   if (isNumeric(cantidad)) {
     return parseFloat(numeral(cantidad).format('0.00'))
   }
@@ -252,26 +284,25 @@ const guardarActividad = () => {
   const subcomp = subComponentes.value.find(
     (subcomp) => subcomp.id_subcomponente == actividad.subcomp,
   )
-  actividad.descSubcomp = Object.keys(subcomp).length > 0 ? subcomp.subcomponente : null
+  actividad.descSubcomp = subcomp?.subcomponente || null
 
   const $actividad = actividades.value.find(
     ($actividad) => $actividad.id_actividad == actividad.act,
   )
-  actividad.descAct = Object.keys($actividad).length > 0 ? $actividad.actividad : null
+  actividad.descAct = $actividad?.actividad || null
 
   const subactividad = subActividades.value.find(
     (subactividad) => subactividad.id_subactividad == actividad.subact,
   )
-  actividad.descSubAct =
-    subactividad && Object.keys(subactividad).length > 0 ? subactividad.subactividad : null
+  actividad.descSubAct = subactividad?.subactividad || null
 
   const entregable = entregables.value.find(
     ($entregable) => $entregable.id_entregable == actividad.entregable,
   )
-  actividad.descEntregable = Object.keys(entregable).length > 0 ? entregable.entregable : null
+  actividad.descEntregable = entregable?.entregable || null
 
   const unidad = unidades.value.find((unidad) => unidad.id_unidad == actividad.unidad)
-  actividad.descUnidad = Object.keys(unidad).length > 0 ? unidad.unidad : null
+  actividad.descUnidad = unidad?.unidad || null
 
   props.agregar
     ? project.agregarActividadComponente({
@@ -293,31 +324,37 @@ const guardarActividad = () => {
 onBeforeMount(() => {
   unidades.value = project.obtenerUnidades
   if (unidades.value.length == 0) {
-    project.obtenUnidades().then((response) => {
-      unidades.value = response
+    project.obtenUnidades().then((data) => {
+      unidades.value = data as Unidades
     })
   }
   municipios.value = project.obtenerMunicipios
   if (municipios.value.length == 0) {
-    project.obtenMunicipios().then((response) => {
-      municipios.value = response
+    project.obtenMunicipios().then((data) => {
+      municipios.value = data as Municipios
     })
   }
-  if ((subComponentes.value = project.obtenerSubcomponente(props.componente_id)) == null) {
-    project.obtenSubcomponente(props.componente_id).then((response) => {
-      subComponentes.value = response.hasOwnProperty(props.componente_id)
-        ? response[props.componente_id]
-        : subComponentes.value
-      !props.agregar ? seleccionSubcomponente() : undefined
-    })
+  if ((subComponentes.value = project.obtenerSubcomponente(props.componente_id)) == undefined) {
+    project
+      .obtenSubcomponente(props.componente_id)
+      .then((data: Record<Component['id'], SubComponentes> | unknown): void => {
+        subComponentes.value =
+          data && data[props.componente_id as keyof typeof data]
+            ? data[props.componente_id as keyof typeof data]
+            : subComponentes.value
+        !props.agregar ? seleccionSubcomponente() : undefined
+      })
   }
 
-  if ((entregables.value = project.obtenerEntregables(props.componente_id)) == null) {
-    project.obtenEntregables(props.componente_id).then((response) => {
-      entregables.value = response.hasOwnProperty(props.componente_id)
-        ? response[props.componente_id]
-        : entregables.value
-    })
+  if ((entregables.value = project.obtenerEntregables(props.componente_id)) == undefined) {
+    project
+      .obtenEntregables(props.componente_id)
+      .then((data: Record<Component['id'], Entregables> | unknown) => {
+        entregables.value =
+          data && data[props.componente_id as keyof typeof data]
+            ? data[props.componente_id as keyof typeof data]
+            : entregables.value
+      })
     return
   }
 })
@@ -552,7 +589,7 @@ onMounted(() => {
                 actividad.conIVA ? 'Costo Con IVA incluído' : 'Costo Sin IVA incluído'
               }}</label>
             </div>
-            <div class="field" v-if="project.obtenerAnio <= 2023">
+            <div class="field" v-if="project.obtenerAnio && project.obtenerAnio <= 2023">
               <label class="label has-text-weight-bold">IVA:</label>
               <div class="control">
                 <input class="input" type="text" v-model="mascara.iva" name="iva" readonly />
@@ -567,7 +604,7 @@ onMounted(() => {
               id="recursoProyecto"
               type="radio"
               v-model="recursoProyecto"
-              @click.preventDefault="(e) => tipoRecurso(1)"
+              @click.preventDefault="(e: MouseEvent) => tipoRecurso(1)"
               name="tiporecurso"
               value="1"
               :checked="recursoProyecto"
@@ -578,7 +615,7 @@ onMounted(() => {
               id="recursoPropio"
               type="radio"
               v-model="recursoPropio"
-              @click.preventDefault="(e) => tipoRecurso(2)"
+              @click.preventDefault="(e: MouseEvent) => tipoRecurso(2)"
               name="tiporecurso"
               value="2"
               :checked="recursoPropio"

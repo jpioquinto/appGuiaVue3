@@ -206,7 +206,7 @@ const mostrarOcultarText = ($actividad) => {
       <div class="container" v-if="modalActiva == true">
         <ModalActividad
           :componente_id="componente.id"
-          :_actividad="actividadActual"
+          :currentActivity="actividadActual"
           :vertiente="componente.vertiente"
           :agregar="agregar"
           :activa="modalActiva"

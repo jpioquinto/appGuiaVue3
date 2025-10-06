@@ -14,6 +14,7 @@ import type {
   OfficeAcquisSchema,
   OfficesAcquisSchema,
 } from '@/schema/office-schema'
+import type { Activity, Anexo, Anexos, SubComponente } from './activity'
 
 export type OfficeDiagnostic = z.infer<typeof OfficeDiagnosticSchema>
 
@@ -47,4 +48,49 @@ export type InitOffices = {
 export type ParamOffice = {
   id: OfficeDiagnostic['detalle_oficinas_id']
   componente_id: Component['id']
+}
+
+export type RemoveObjective = {
+  componente: Component['id']
+  vertiente: Component['vertiente']
+  index: number
+}
+
+export type ParamActivity = {
+  vertiente: Component['vertiente']
+  actividad: Activity
+  id: Component['id']
+}
+
+export type RemoveActivity = {
+  actividad_id: Activity['id']
+  componente_id: Component['id']
+  vertiente: Component['vertiente']
+}
+
+export type ParamProgramar = {
+  id: Component['id']
+  idSubcomp: SubComponente['id_subcomponente']
+  vertiente: number
+  mes: string
+}
+
+export type ParamAnexo = {
+  idActividad: Activity['id']
+  idComponente: Component['id']
+  vertiente: Component['vertiente']
+  anexos: Anexos
+}
+
+export type RemoveAnexo = {
+  idActividad: Activity['id']
+  idComponente: Component['id']
+  vertiente: Component['vertiente']
+  anexos: Anexos
+  idAnexo: Anexo['id_anexo']
+}
+
+export type AnexoExtra = Anexo & {
+  idComponente: Component['id']
+  vertiente: Component['vertiente']
 }

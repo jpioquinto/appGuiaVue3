@@ -27,7 +27,7 @@ export const OfficeAcquisSchema = z.object({
   nombre: z.string(),
   acervo: OfficesDiagnosticSchema,
   total: TotalAcquisSchema,
-  id: z.string(),
+  id: z.number(),
 })
 
 export const OfficesAcquisSchema = z.array(OfficeAcquisSchema)

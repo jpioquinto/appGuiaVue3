@@ -14,12 +14,12 @@ export default {
     const project = useProjectStore()
 
     return {
-      desarrollo: reactive(project.desarrollo.componentes),
+      desarrollo: reactive(project.estructura.desarrollo.componentes),
       porcDecimales: ref(project.anio === 2020 ? 2 : 8),
-      capturado: ref(project.resumen.capturado),
+      capturado: ref(project.estructura.resumen.capturado),
       homologos: reactive(project.homologos),
       componentes: reactive({ pec: [], pem: [] }),
-      listado: ref(project.resumen.listado),
+      listado: ref(project.estructura.resumen.listado),
       vertiente: ref(project.vertiente),
       keyTabla: ref(makeHash()),
       anio: ref(project.anio),
@@ -209,7 +209,7 @@ export default {
 
       return componentes
     },
-    actualizarDistribucion(porcentajes) {
+    actualizarDistribucion(_porcentajes) {
       /*console.log(porcentajes);
                 this.distribuciones.filas.porcentaje.federal = porcentajes.federal;
                 this.distribuciones.filas.porcentaje.estatal = porcentajes.estatal;
@@ -237,7 +237,7 @@ export default {
       const me = this
 
       return new Promise((resolve, reject) => {
-        if (!me.project.desarrollo.inicializado && me.project.id) {
+        if (!me.project.estructura.desarrollo.inicializado && me.project.id) {
           me.project.obtenerDesarrollo()
         }
 
@@ -267,7 +267,7 @@ export default {
 <template>
   <div class="content">
     <div class="box">
-      <h4>{{ componente.orden }}.- RESUMEN FINANCIERO</h4>
+      <h4>{{ componente?.orden }}.- RESUMEN FINANCIERO</h4>
 
       <TablaResumen
         :vertiente="vertiente"
@@ -280,17 +280,23 @@ export default {
 
       <template v-if="estatus == 1">
         <h6 class="title is-6 mt-4">Observaciones del resumen financiero</h6>
-        <QuillEditor v-model:content="project.resumen.observaciones" content-type="html" />
+        <QuillEditor
+          v-model:content="project.estructura.resumen.observaciones"
+          content-type="html"
+        />
       </template>
       <template v-else>
         <div
           class="container"
-          v-if="project.resumen.observaciones && project.resumen.observaciones != ''"
+          v-if="
+            project.estructura.resumen.observaciones &&
+            project.estructura.resumen.observaciones != ''
+          "
         >
           <h6 class="title is-6 mt-4">Observaciones del resumen financiero</h6>
           <article class="message is-dark">
             <div class="message-body">
-              <div v-html="project.resumen.observaciones"></div>
+              <div v-html="project.estructura.resumen.observaciones"></div>
             </div>
           </article>
         </div>

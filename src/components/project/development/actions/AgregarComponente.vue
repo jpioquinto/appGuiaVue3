@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 const props = defineProps(['vertiente'])
 
-const modalActiva = ref(false)
+const modalActiva = ref<boolean>(false)
 
 const abrirModal = () => {
   if (modalActiva.value) {

@@ -19,6 +19,7 @@ export const ObjectiveSchema = z.object({
   componente: z.number(),
   vertiente: z.number(),
   index: z.optional(z.number()),
+  orden: z.optional(z.number()),
 })
 
 export const ObjectivesSchema = z.array(ObjectiveSchema)
@@ -28,6 +29,8 @@ export const AcquisSchema = z.object({
   oficinas: OfficesAcquisSchema,
 })
 
+export const ProgramaSchema = z.record(z.number(), z.array(z.string()))
+
 export const ComponentSchema = z.object({
   id: z.number(),
   vertiente: z.number(),
@@ -36,7 +39,7 @@ export const ComponentSchema = z.object({
   situacion: z.string().nullable(),
   objetivos: ObjectivesSchema,
   actividades: ActivitiesSchema,
-  programa: z.object(),
+  programa: ProgramaSchema,
   estrategia: z.string().nullable(),
   aporteFederal: z.number(),
   aporteEstatal: z.number(),

@@ -14,8 +14,15 @@ import type {
   ComponentVert,
   InitOffices,
   Objective,
+  ParamActivity,
+  ParamAnexo,
   ParamOffice,
+  ParamProgramar,
+  RemoveActivity,
+  RemoveAnexo,
+  RemoveObjective,
 } from '@/types/component'
+import type { Activity, SubComponentes } from '@/types/activity'
 
 export const useProjectStore = defineStore('project', {
   state: (): StateProject => {
@@ -236,7 +243,7 @@ export const useProjectStore = defineStore('project', {
                     : respuesta['pem'] = this.desarrollo.listadoComponentes.pem.datos;
                 }*/
 
-            resolve(response)
+            resolve(response.data?.datos)
           })
           .catch((error) => {
             reject(error)
@@ -409,6 +416,8 @@ export const useProjectStore = defineStore('project', {
         componente.objetivos.push({
           objetivo: data.objetivo,
           alcance: data.alcance,
+          componente: componente.id,
+          vertiente: data.vertiente,
           orden: componente.objetivos.length + 1,
         })
 
@@ -548,12 +557,12 @@ export const useProjectStore = defineStore('project', {
           })
       })
     },
-    obtenerSubActividades(actividadId) {
+    obtenerSubActividades(actividadId: Activity['act']) {
       return new Promise((resolve, reject) => {
         $axios
           .get('api/subactividades/' + actividadId)
           .then((response) => {
-            resolve(response)
+            resolve(response.data)
           })
           .catch((error) => {
             console.log('Error...')
@@ -578,7 +587,7 @@ export const useProjectStore = defineStore('project', {
           })
       })
     },
-    eliminarObjetivoComponente(data) {
+    eliminarObjetivoComponente(data: RemoveObjective) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -587,13 +596,13 @@ export const useProjectStore = defineStore('project', {
           : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.componente,
             )
-      if (componente.hasOwnProperty('objetivos')) {
+      if (componente?.objetivos) {
         componente.objetivos.splice(data.index, 1)
 
         componente.actualizado = true
       }
     },
-    agregarActividadComponente(data) {
+    agregarActividadComponente(data: ParamActivity) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -603,16 +612,17 @@ export const useProjectStore = defineStore('project', {
               (componente) => componente.id === data.id,
             )
 
-      if (!componente.hasOwnProperty('actividades')) {
+      if (componente && !componente.hasOwnProperty('actividades')) {
         componente['actividades'] = []
       }
 
-      componente.actividades.push(data.actividad)
-      componente.total += data.actividad.total
-
-      componente.actualizado = true
+      if (componente) {
+        componente.actividades.push(data.actividad)
+        componente.total += data.actividad.total
+        componente.actualizado = true
+      }
     },
-    editarActividadComponente(data) {
+    editarActividadComponente(data: ParamActivity) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -621,7 +631,8 @@ export const useProjectStore = defineStore('project', {
           : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.id,
             )
-      if (!componente.hasOwnProperty('actividades')) {
+
+      if (!componente || !componente?.actividades) {
         return
       }
       const index = componente.actividades.findIndex(
@@ -630,13 +641,13 @@ export const useProjectStore = defineStore('project', {
       componente.actividades.splice(index, 1, data.actividad)
 
       componente.total = 0
-      componente.actividades.forEach((actividad, index) => {
+      componente.actividades.forEach((actividad) => {
         componente.total += actividad.total
       })
 
       componente.actualizado = true
     },
-    eliminarActividadComponente(data) {
+    eliminarActividadComponente(data: RemoveActivity) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -645,7 +656,7 @@ export const useProjectStore = defineStore('project', {
           : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.componente_id,
             )
-      if (!componente.hasOwnProperty('actividades') || componente.actividades.length == 0) {
+      if (!componente || !componente.actividades || componente.actividades.length == 0) {
         return
       }
       const index = componente.actividades.findIndex(
@@ -653,7 +664,7 @@ export const useProjectStore = defineStore('project', {
       )
       componente.actividades.splice(index, 1)
       componente.total = 0
-      componente.actividades.forEach((actividad, index) => {
+      componente.actividades.forEach((actividad) => {
         componente.total += actividad.total
       })
 
@@ -687,10 +698,10 @@ export const useProjectStore = defineStore('project', {
           })
       })
     },
-    inicializarPrograma(data) {
+    inicializarPrograma() {
       this.estructura.programa.inicializado = true
     },
-    actualizarCapturaPrograma(data) {
+    actualizarCapturaPrograma() {
       this.estructura.programa.capturado = false
       this.estructura.desarrollo.componentes.pec.forEach((componente) => {
         if (Object.keys(componente.programa).length > 0) {
@@ -702,11 +713,11 @@ export const useProjectStore = defineStore('project', {
       }
       this.estructura.desarrollo.componentes.pem.forEach((componente) => {
         if (Object.keys(componente.programa).length > 0) {
-          this.programa.capturado = true
+          this.estructura.programa.capturado = true
         }
       })
     },
-    programar(data) {
+    programar(data: ParamProgramar) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -715,13 +726,18 @@ export const useProjectStore = defineStore('project', {
           : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.id,
             )
-      if (!componente.hasOwnProperty('programa')) {
+      if (!componente) {
+        return
+      }
+
+      if (!componente.programa) {
         componente['programa'] = {}
         componente.programa[data.idSubcomp] = []
       }
+
       componente.programa[data.idSubcomp].push(data.mes)
     },
-    desProgramar(data) {
+    desProgramar(data: ParamProgramar) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -730,90 +746,97 @@ export const useProjectStore = defineStore('project', {
           : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.id,
             )
-      if (
-        !componente.hasOwnProperty('programa') ||
-        !componente.programa.hasOwnProperty(data.idSubcomp)
-      ) {
+      if (!componente || !componente?.programa[data.idSubcomp]) {
         return
       }
+
       const index = componente.programa[data.idSubcomp].findIndex((mes) => mes === data.mes)
-      index != -1 ? componente.programa[data.idSubcomp].splice(index, 1) : ''
+
+      if (index !== -1) {
+        componente.programa[data.idSubcomp].splice(index, 1)
+      }
     },
-    desProgramarTodos(data) {
+    desProgramarTodos($mes: number) {
       this.estructura.desarrollo.componentes.pec.map((componente) => {
         for (const idSupComp in componente.programa) {
-          const index = componente.programa[idSupComp].findIndex((mes) => mes === data)
-          index != -1 ? componente.programa[idSupComp].splice(index, 1) : ''
+          const index = componente.programa[idSupComp].findIndex((mes) => +mes === $mes)
+          if (index !== -1) {
+            componente.programa[idSupComp].splice(index, 1)
+          }
         }
       })
-      this.desarrollo.componentes.pem.map((componente) => {
+      this.estructura.desarrollo.componentes.pem.map((componente) => {
         for (const idSupComp in componente.programa) {
-          const index = componente.programa[idSupComp].findIndex((mes) => mes === data)
-          index != -1 ? componente.programa[idSupComp].splice(index, 1) : ''
+          const index = componente.programa[idSupComp].findIndex((mes) => +mes === $mes)
+          if (index !== -1) {
+            componente.programa[idSupComp].splice(index, 1)
+          }
         }
       })
     },
-    inicializarResumen(estatus = true) {
+    inicializarResumen(estatus: boolean = true) {
       this.estructura.resumen.inicializado = estatus
     },
-    actualizarCapturaResumen(estatus = true) {
+    actualizarCapturaResumen(estatus: boolean = true) {
       this.estructura.resumen.capturado = estatus
     },
-    distribucionCalculada(estatus = true) {
+    distribucionCalculada(estatus: boolean = true) {
       this.estructura.resumen.calculado = estatus
     },
-    asignarNumDecPorcentaje(numDec) {
+    asignarNumDecPorcentaje(numDec: number) {
       this.estructura.resumen.porcDecimales = numDec
     },
-    actualizarDistribucion(distribucion, $listado) {
-      this.anio < 2018
+    actualizarDistribucion(distribucion: never, $listado: never) {
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1 = distribucion)
         : (this.estructura.resumen.distribucionV2 = distribucion)
 
       this.estructura.resumen.listado = $listado
     },
     //actualizarAporteFederal
-    asignarAporteFederal(monto) {
-      this.anio < 2018
+    asignarAporteFederal(monto: number) {
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.gTotal.federal = monto)
         : (this.estructura.resumen.distribucionV2.gTotal.federal = monto)
 
-      this.resumen.millar = numberFormat((monto * this.resumen.alMillar) / 1000)
+      this.estructura.resumen.millar = numberFormat(
+        (monto * this.estructura.resumen.alMillar) / 1000,
+      )
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.millar.federal =
             this.estructura.resumen.distribucionV1.millar.total =
-              this.estructura.resumen.millar)
+              this.estructura.resumen.millar!)
         : (this.estructura.resumen.distribucionV2.millar.federal =
             this.estructura.resumen.distribucionV2.millar.total =
-              this.estructura.resumen.millar)
+              this.estructura.resumen.millar!)
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.total.federal =
-            monto - this.estructura.resumen.millar)
+            monto - this.estructura.resumen.millar!)
         : (this.estructura.resumen.distribucionV2.total.federal =
-            monto - this.estructura.resumen.millar)
+            monto - this.estructura.resumen.millar!)
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.total.estatal =
             this.estructura.resumen.distribucionV1.total.total -
-            (monto - this.estructura.resumen.millar))
+            (monto - this.estructura.resumen.millar!))
         : (this.estructura.resumen.distribucionV2.total.estatal =
             this.estructura.resumen.distribucionV2.total.total -
-            (monto - this.estructura.resumen.millar))
+            (monto - this.estructura.resumen.millar!))
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.gTotal.estatal =
             this.estructura.resumen.distribucionV1.total.estatal)
         : (this.estructura.resumen.distribucionV2.gTotal.estatal =
             this.estructura.resumen.distribucionV2.total.estatal)
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.gTotal.total = numberFormat(
-            monto + this.estructura.resumen.distribucionV1.gTotal.estatal,
+            monto + this.estructura.resumen.distribucionV1.gTotal.estatal!,
           ))
         : (this.estructura.resumen.distribucionV2.gTotal.total = numberFormat(
-            monto + this.estructura.resumen.distribucionV2.gTotal.estatal,
+            monto + this.estructura.resumen.distribucionV2.gTotal.estatal!,
           ))
 
       let gTotal =
@@ -822,7 +845,7 @@ export const useProjectStore = defineStore('project', {
           ? this.estructura.resumen.distribucionV2.gTotal.total
           : 1
 
-      if (this.anio < 2018) {
+      if (this.anio && this.anio < 2018) {
         gTotal =
           this.estructura.resumen.distribucionV1.gTotal.total &&
           this.estructura.resumen.distribucionV1.gTotal.total > 0
@@ -830,7 +853,7 @@ export const useProjectStore = defineStore('project', {
             : 1
       }
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.porcentaje.federal = this.calcularPorcentaje(
             this.estructura.resumen.distribucionV1.gTotal.federal,
             gTotal,
@@ -842,20 +865,20 @@ export const useProjectStore = defineStore('project', {
             this.estructura.resumen.porcDecimales,
           ))
 
-      this.anio < 2018
+      this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.porcentaje.estatal = this.calcularPorcentaje(
-            this.estructura.resumen.distribucionV1.gTotal.estatal,
+            this.estructura.resumen.distribucionV1.gTotal.estatal!,
             gTotal,
             this.estructura.resumen.porcDecimales,
           ))
         : (this.estructura.resumen.distribucionV2.porcentaje.estatal = this.calcularPorcentaje(
-            this.estructura.resumen.distribucionV2.gTotal.estatal,
+            this.estructura.resumen.distribucionV2.gTotal.estatal!,
             gTotal,
             this.estructura.resumen.porcDecimales,
           ))
 
       this.estructura.resumen.porcentaje.federal =
-        this.anio < 2018
+        this.anio && this.anio < 2018
           ? this.calcularPorcentaje(
               this.estructura.resumen.distribucionV1.total.federal,
               this.estructura.resumen.distribucionV1.total.total,
@@ -868,21 +891,21 @@ export const useProjectStore = defineStore('project', {
             )
 
       this.estructura.resumen.porcentaje.estatal =
-        this.anio < 2018
+        this.anio && this.anio < 2018
           ? this.calcularPorcentaje(
-              this.estructura.resumen.distribucionV1.total.estatal,
+              this.estructura.resumen.distribucionV1.total.estatal!,
               this.estructura.resumen.distribucionV1.total.total,
               this.estructura.resumen.porcDecimales,
             )
           : this.calcularPorcentaje(
-              this.estructura.resumen.distribucionV2.total.estatal,
+              this.estructura.resumen.distribucionV2.total.estatal!,
               this.estructura.resumen.distribucionV2.total.total,
               this.estructura.resumen.porcDecimales,
             )
 
       this.actualizarAportacionesComponente()
     },
-    calcularPorcentaje(cantidad, tope, $decimales) {
+    calcularPorcentaje(cantidad: number, tope: number, $decimales: number) {
       const $tope = tope > 0 ? tope : 1
 
       let porcentaje = (cantidad / $tope) * 100
@@ -894,13 +917,13 @@ export const useProjectStore = defineStore('project', {
       return $decimales && $decimales > 0 ? porcentaje : parseInt(porcentaje)
     },
     actualizarAportacionesComponente() {
-      this.estructura.desarrollo.componentes.pec = this.desarrollo.componentes.pec.map(
+      this.estructura.desarrollo.componentes.pec = this.estructura.desarrollo.componentes.pec.map(
         ($componente) => {
           $componente.aporteFederal = numberFormat(
             (this.estructura.resumen.porcentaje.federal * $componente.total) / 100,
           )
           $componente.aporteEstatal = numberFormat(
-            (this.estructura.resumen.porcentaje.estatal * $componente.total) / 100,
+            (this.estructura.resumen.porcentaje.estatal! * $componente.total) / 100,
           )
 
           if (
@@ -934,13 +957,9 @@ export const useProjectStore = defineStore('project', {
         },
       )
     },
-    obtenerFiscalizacion(context) {
+    obtenerFiscalizacion() {
       $axios
-        .get(
-          'api/fiscalizacion' +
-            '/' +
-            (context.state.proyecto.id !== null ? context.state.proyecto.id : 0),
-        )
+        .get('api/fiscalizacion' + '/' + (this.id !== null ? this.id : 0))
         .then((response) => {
           this.estructura.resumen.millar = response.data.millar
         })
@@ -948,18 +967,19 @@ export const useProjectStore = defineStore('project', {
           console.log('Error...')
         })
     },
-    actualizarObservacionResumen(data) {
-      this.estructura.resumen.observaciones = data && data != '<p class="fr-tag"><br></p>'
+    actualizarObservacionResumen(data: string) {
+      this.estructura.resumen.observaciones = data
     },
-    actualizarResultado(data) {
+    actualizarResultado(data: string) {
       this.estructura.resultados.captura = data
-      this.estructura.resultados.capturado = data && data != '<p class="fr-tag"><br></p>'
+      this.estructura.resultados.capturado = (data &&
+        data != '<p class="fr-tag"><br></p>') as boolean
     },
-    actualizarEstatusAnexos(estatus) {
+    actualizarEstatusAnexos(estatus: boolean) {
       this.estructura.anexos.inicializado = estatus
       this.estructura.anexos.capturado = estatus
     },
-    agregarAnexo(data) {
+    agregarAnexo(data: ParamAnexo) {
       const componente =
         data.vertiente === 1
           ? this.estructura.desarrollo.componentes.pec.find(
@@ -969,7 +989,7 @@ export const useProjectStore = defineStore('project', {
               (componente) => componente.id === data.idComponente,
             )
 
-      if (!componente.hasOwnProperty('actividades') || componente.actividades.length == 0) {
+      if (!componente || !componente?.actividades || componente?.actividades?.length == 0) {
         return
       }
 
@@ -982,31 +1002,34 @@ export const useProjectStore = defineStore('project', {
       actividad.anexos = data.anexos
       componente.actualizado = true
     },
-    eliminarAnexo(data) {
+    eliminarAnexo(data: RemoveAnexo) {
       const componente =
         data.vertiente === 1
-          ? this.desarrollo.componentes.pec.find(
+          ? this.estructura.desarrollo.componentes.pec.find(
               (componente) => componente.id === data.idComponente,
             )
-          : this.desarrollo.componentes.pem.find(
+          : this.estructura.desarrollo.componentes.pem.find(
               (componente) => componente.id === data.idComponente,
             )
 
-      if (!componente.hasOwnProperty('actividades') || componente.actividades.length == 0) {
+      if (!componente || !componente?.actividades || componente?.actividades?.length == 0) {
         return
       }
 
       const actividad = componente.actividades.find(
         (actividad) => actividad.id === data.idActividad,
       )
-      if (!actividad.hasOwnProperty('anexos') || actividad.anexos.length == 0) {
+
+      if (!actividad || !actividad?.anexos || actividad?.anexos?.length == 0) {
         return
       }
 
       const index = actividad.anexos.findIndex((anexo) => anexo.id_anexo === data.idAnexo)
 
-      index !== -1 ? actividad.anexos.splice(index, 1) : undefined
-      index !== -1 ? (componente.actualizado = true) : undefined
+      if (index !== -1) {
+        actividad.anexos.splice(index, 1)
+        componente.actualizado = true
+      }
     },
     obtenerPDF() {
       return new Promise((resolve, reject) => {

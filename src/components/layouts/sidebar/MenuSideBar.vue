@@ -9,11 +9,11 @@ const project = useProjectStore()
 
 const seleccionarElemento = ($elemento: Step) => {
   props.elementos.map((elemento) => {
-    elemento.seleccionado = elemento.id_punto == $elemento.id_punto
+    elemento.seleccionado = elemento.id_punto === $elemento.id_punto
     return elemento
   })
 
-  project.seleccionarElemento(props.elementos || [], $elemento.id_punto)
+  project.seleccionarElemento(props.elementos || [])
 }
 </script>
 <template>

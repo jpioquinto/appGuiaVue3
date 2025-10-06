@@ -17,7 +17,7 @@ export const isNumericPositive = (value: string): boolean => {
 }
 
 export const makeHash = (longitud: number = 32): string => {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$!@'
   let hash = ''
 
   for (let i = 0; i < longitud; i++) {
@@ -51,6 +51,28 @@ export function formatDateShort(dateStr: string): string {
   return date.reverse().join('/')
 }
 
+export function removeFormatNumeric(input: string): string {
+  return input.toString().replace(/[$,*%\s ]*/g, '')
+}
+
 export function clone(obj: object): object {
   return JSON.parse(JSON.stringify(obj))
+}
+
+export const isKeySpecial = (key: string): boolean => {
+  const keysSpecials = [
+    'Backspace',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowUp',
+    'ArrowDown',
+    'Delete',
+    'Tab',
+  ]
+  return keysSpecials.includes(key)
+}
+
+export const isKeyCtrl = (e: KeyboardEvent): boolean => {
+  const keysSpecials = ['c', 'v', 'x', 'a']
+  return keysSpecials.includes(e.key) && (e.ctrlKey || e.metaKey)
 }

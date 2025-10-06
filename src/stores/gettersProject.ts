@@ -1,3 +1,5 @@
+import type { Entregable, Entregables, SubComponente, SubComponentes } from '@/types/activity'
+import type { Component } from '@/types/component'
 import type { StateProject } from '@/types/project'
 
 export default {
@@ -15,7 +17,7 @@ export default {
   obtenerIVA(state: StateProject) {
     return state.iva
   },
-  obtenerAnio(state: StateProject) {
+  obtenerAnio(state: StateProject): number | null {
     return state.anio
   },
   obtenerEstatus(state: StateProject) {
@@ -42,17 +44,21 @@ export default {
       : 0
   },
   obtenerSubcomponente(state: StateProject) {
-    return function ($id) {
+    return function ($id: Component['id']) {
       if (state.estructura.desarrollo.catalogos.subComponentes.hasOwnProperty($id)) {
         return state.estructura.desarrollo.catalogos.subComponentes[$id]
       }
+
+      return {} as SubComponentes
     }
   },
   obtenerEntregables(state: StateProject) {
-    return function ($id) {
+    return function ($id: Component['id']) {
       if (state.estructura.desarrollo.catalogos.entregables.hasOwnProperty($id)) {
         return state.estructura.desarrollo.catalogos.entregables[$id]
       }
+
+      return {} as Entregables
     }
   },
   obtenerUnidades(state: StateProject) {

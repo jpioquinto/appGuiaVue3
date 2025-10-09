@@ -2,6 +2,8 @@ import { z } from 'zod'
 import type { CatComponentsSchema } from '@/schema/component-schema'
 import type { CatComponents, Component, Components } from './component'
 import type { Entregable, Entregables, Municipios, SubComponentes, Unidades } from './activity'
+import type { Chart } from '@amcharts/amcharts5'
+import type { ChartSerie } from './partialProps'
 
 type Diagnostico = {
   anio: null | number
@@ -40,10 +42,10 @@ type Antecedente = Inicializado & {
   pem: AntecedentePEM
 }
 
-type SituacionVertiente = {
+export type SituacionVertiente = {
   tabla: null | string
   totales: null | string
-  series: null | string
+  series: null | ChartSerie[]
 }
 
 type Situacion = Inicializado & {
@@ -64,7 +66,7 @@ type VertCatalogComponents = {
   pem: CatalogComponents | null
 }
 
-type ComponentesDesarrollo = {
+export type ComponentesDesarrollo = {
   pec: Components
   pem: Components
 }
@@ -88,14 +90,14 @@ type Programa = Inicializado & {
   meses: Array<number>
 }
 
-type Distribucion = {
+export type Distribucion = {
   leyenda?: null | string
   federal: number
   estatal: null | number
   total: number
 }
 
-type FilasDistribucion = {
+export type FilasDistribucion = {
   total: Distribucion
   millar: Distribucion
   gTotal: Distribucion

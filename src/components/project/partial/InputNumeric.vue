@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import type { InputNumericProps } from '@/types/partialProps'
 import { ref, computed } from 'vue'
-const props = defineProps(['cantidad', 'numDecimal', 'activar', 'prefijo', 'sufijo', 'formato'])
+import { decimales } from '@/util'
+import numeral from 'numeral'
+
+const props = defineProps<InputNumericProps>()
 
 const emit = defineEmits(['actualizar'])
 
@@ -8,7 +12,7 @@ const $sufijo = props.sufijo || ''
 
 const $prefijo = props.prefijo || ''
 
-const $cantidad = ref(props.cantidad)
+const $cantidad = ref<number>(props.cantidad)
 
 const $formatoCantidad = computed(() => {
   if (props.formato) {
@@ -17,7 +21,7 @@ const $formatoCantidad = computed(() => {
   return $cantidad.value
 })
 
-const terminarCaptura = (event) => {
+const terminarCaptura = (event: KeyboardEvent) => {
   emit('actualizar', $cantidad.value)
 }
 </script>

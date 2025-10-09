@@ -2,20 +2,21 @@
 import { ref } from 'vue'
 import TablaOficina from '../partial/TablaOficina.vue'
 
+import type { RegistryOfficesProps } from '@/types/componentProps'
 import { useProjectStore } from '@/stores/project'
 
-defineProps(['listado', 'oficinas', 'estatus'])
+defineProps<RegistryOfficesProps>() //['listado', 'oficinas', 'estatus']
 
 const project = useProjectStore()
 
-const idOficina = ref(null)
+const idOficina = ref<string | null>(null)
 
-const selectOficina = () => {
+const selectOficina = (): void => {
   if (idOficina.value == null) {
     return
   }
 
-  project.agregarOficina({ id: idOficina.value, componente_id: 14 })
+  project.agregarOficina({ id: +idOficina?.value!, componente_id: 14 })
 }
 </script>
 

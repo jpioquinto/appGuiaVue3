@@ -3,43 +3,35 @@ import { computed, ref, reactive, onBeforeMount } from 'vue'
 
 import ModalObjetivo from './modal/ModalObjetivo.vue'
 
-import { useConfigStore } from '@/stores/config'
+import type { ObjectiveComponentProps } from '@/types/componentProps'
 import { useProjectStore } from '@/stores/project'
+import { useConfigStore } from '@/stores/config'
 
 const config = useConfigStore()
 
 const project = useProjectStore()
 
-const props = defineProps([
-  'indice',
-  'ordencomponente',
-  'punto',
-  'orden',
-  'objetivo',
-  'componente',
-  'vertiente',
-  'estatus',
-])
+const props = defineProps<ObjectiveComponentProps>()
 
-const isObjetiveModalActive = ref(false)
+const isObjetiveModalActive = ref<boolean>(false)
 
-const eliminarObjetivo = () => {
+const eliminarObjetivo = (): void => {
   project.eliminarObjetivoComponente({
-    componente: props.componente,
+    componente: props.componenteId,
     vertiente: props.vertiente,
     index: props.orden - 1,
   })
   project.actualizarEstatusCaptura()
 }
 
-const editarObjetivo = () => {
+const editarObjetivo = (): void => {
   if (isObjetiveModalActive.value) {
     return
   }
   isObjetiveModalActive.value = true
 }
 
-const cerrarModalObjetivo = () => {
+const cerrarModalObjetivo = (): void => {
   isObjetiveModalActive.value = false
 }
 </script>
@@ -59,7 +51,7 @@ const cerrarModalObjetivo = () => {
     <p v-html="objetivo.alcance"></p>
     <ModalObjetivo
       v-if="estatus == 1"
-      :componente="props.componente"
+      :componente="props.componenteId"
       :vertiente="props.vertiente"
       :objetivoActual="props.objetivo"
       :activa="isObjetiveModalActive"

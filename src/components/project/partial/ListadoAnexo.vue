@@ -1,24 +1,26 @@
 <script setup lang="ts">
+import ModalVerDoc from './ModalVerDoc.vue'
 import { computed, ref } from 'vue'
 import Anexo from './Anexo.vue'
-import ModalVerDoc from './ModalVerDoc.vue'
 
 //import { useConfigStore } from '@/stores/config';
+import type { RemoveAnexo } from '@/types/component'
 import { useProjectStore } from '@/stores/project'
+import type { Anexos } from '@/types/activity'
 
 //const config = useConfigStore();
 
 const project = useProjectStore()
 
-const props = defineProps(['listado', 'icono'])
+const props = defineProps<{ listado: Anexos; icono: string }>()
 
-const mostrarAnexo = ref(false)
+const mostrarAnexo = ref<boolean>(false)
 
-const url = ref('')
+const url = ref<string>('')
 
 const estatus = computed(() => project.obtenerEstatus)
 
-const verAnexo = ($url) => {
+const verAnexo = ($url: string) => {
   url.value = $url
   mostrarAnexo.value = true
 }
@@ -27,7 +29,7 @@ const cerrarModalAnexo = () => {
   mostrarAnexo.value = false
 }
 
-const removerAnexo = (data) => {
+const removerAnexo = (data: RemoveAnexo) => {
   project.eliminarAnexo(data)
 }
 </script>

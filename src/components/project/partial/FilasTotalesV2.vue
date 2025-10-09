@@ -1,29 +1,31 @@
 <script setup lang="ts">
+import type { RowTotalsProps } from '@/types/partialProps'
+import { decimales } from '@/util'
 import { computed, ref } from 'vue'
+import numeral from 'numeral'
 
-const props = defineProps(['fila', 'estatus', 'distribucion', 'numDecimales'])
+const props = defineProps<RowTotalsProps>() //['fila', 'estatus', 'distribucion', 'numDecimales']
 
 const emit = defineEmits(['distribuirPorcentaje'])
 
-const monedaFederal = ref(numeral(props.distribucion.federal).format('$0,0.00'))
-const monedaEstatal = ref(numeral(props.distribucion.estatal).format('$0,0.00'))
-const monedaTotal = ref(numeral(props.distribucion.total).format('$0,0.00'))
+const monedaFederal = ref<string>(numeral(props.distribucion.federal).format('$0,0.00'))
+const monedaEstatal = ref<string>(numeral(props.distribucion.estatal).format('$0,0.00'))
+const monedaTotal = ref<string>(numeral(props.distribucion.total).format('$0,0.00'))
 
-const porcFederal = ref(
+const porcFederal = ref<string>(
   numeral(props.distribucion.federal).format('0.' + decimales(props.numDecimales)),
 )
-const porcEstatal = ref(
+const porcEstatal = ref<string>(
   numeral(props.distribucion.estatal).format('0.' + decimales(props.numDecimales)),
 )
-const porcTotal = ref(numeral(props.distribucion.total).format('0.00'))
+const porcTotal = ref<string>(numeral(props.distribucion.total).format('0.00'))
 
 const procesarPorcentaje = () => {
-  props.distribucion.federal =
-    100 - (isNumeric(props.distribucion.estatal) ? props.distribucion.estatal : 0)
+  props.distribucion.federal = 100 - (props.distribucion.estatal ? props.distribucion.estatal : 0)
   emit('distribuirPorcentaje', {
     estatal: props.distribucion.estatal,
     federal: props.distribucion.federal,
-    total: props.distribucion.federal + props.distribucion.estatal,
+    total: props.distribucion.federal + props.distribucion.estatal!,
   })
 }
 

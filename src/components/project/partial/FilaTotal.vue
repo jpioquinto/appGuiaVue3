@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import type { Distribucion } from '@/types/project'
 import { ref, computed } from 'vue'
-const props = defineProps(['distribucion'])
+import numeral from 'numeral'
+
+const props = defineProps<{ distribucion: Distribucion }>()
 
 const monedaFederal = computed(() => numeral(props.distribucion.federal).format('$0,0.00'))
 const monedaEstatal = computed(() => numeral(props.distribucion.estatal).format('$0,0.00'))

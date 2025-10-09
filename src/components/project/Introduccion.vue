@@ -1,45 +1,56 @@
 <script setup lang="ts">
-import { computed, reactive, onBeforeMount, onMounted } from 'vue'
-import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { computed, ref, reactive, onBeforeMount, onMounted } from 'vue'
 
-//import { QuillEditor } from '@vueup/vue-quill';
-//import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { isNumeric, removeFormatNumeric, isKeySpecial, isKeyCtrl, isNumericPositive } from '@/util'
+import { useProjectStore } from '@/stores/project'
+import type { StateProject } from '@/types/project'
+import { useConfigStore } from '@/stores/config'
+import numeral from 'numeral'
 
 const config = useConfigStore()
 
 const project = useProjectStore()
 
-const introduccion = reactive(project.estructura.introduccion)
+const introduccion = reactive<StateProject['estructura']['introduccion']>(
+  project.estructura.introduccion,
+)
+
+let inputPresupuesto = ref<string>('')
 
 const componente = computed(() => config.findElementMenu('introduccion'))
 
 const estatus = computed(() => project.obtenerEstatus)
 
-const entradaNumerica = (event) => {
-  const keynum = window.event ? window.event.keyCode : event.which
-
-  if (keynum == 8 || keynum == 46 || isNumeric(String.fromCharCode(keynum))) {
-    return isNumeric(quitarFormatoNumerico(introduccion.presupuesto)) ||
-      introduccion.presupuesto.trim() == ''
-      ? true
-      : event.preventDefault()
-  }
-  return event.preventDefault()
-}
-
-const verificarCapturaNumerica = (event) => {
-  if (!isNumeric(quitarFormatoNumerico(introduccion.presupuesto))) {
-    return true
+const entradaNumerica = (event: KeyboardEvent) => {
+  if (event.target instanceof HTMLInputElement) {
+    if (
+      event.key !== 'Enter' &&
+      event.key !== '.' &&
+      !isKeySpecial(event.key) &&
+      !isKeyCtrl(event) &&
+      !isNumericPositive(removeFormatNumeric(inputPresupuesto.value))
+    ) {
+      event.preventDefault()
+    }
   }
 }
 
-const formatearPresupuesto = (event) => {
-  if (isNumeric(quitarFormatoNumerico(introduccion.presupuesto))) {
-    project.actualizarPresupuesto(numeral(quitarFormatoNumerico(introduccion.presupuesto)).value())
-    introduccion.presupuesto = numeral(quitarFormatoNumerico(introduccion.presupuesto)).format(
-      '$0,0.00',
-    )
+const verificarCapturaNumerica = (event: KeyboardEvent) => {
+  if (event.target instanceof HTMLInputElement) {
+    if (!isNumeric(removeFormatNumeric(inputPresupuesto.value))) {
+      event.preventDefault()
+    }
+  }
+}
+
+const formatearPresupuesto = (event: Event) => {
+  if (event.target instanceof HTMLInputElement) {
+    if (isNumeric(removeFormatNumeric(inputPresupuesto.value))) {
+      project.actualizarPresupuesto(numeral(removeFormatNumeric(inputPresupuesto.value)).value()!)
+      inputPresupuesto.value = numeral(removeFormatNumeric(inputPresupuesto.value)).format(
+        '$0,0.00',
+      )
+    }
   }
 }
 
@@ -54,9 +65,11 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  project.actualizarPresupuesto(numeral(quitarFormatoNumerico(introduccion.presupuesto)).value())
-  project.actualizarIntroduccion(introduccion.captura)
-  introduccion.presupuesto = numeral(quitarFormatoNumerico(introduccion.presupuesto)).format(
+  project.actualizarPresupuesto(
+    numeral(removeFormatNumeric(introduccion.presupuesto.toString())).value()!,
+  )
+  project.actualizarIntroduccion(introduccion.captura?.toString()!)
+  inputPresupuesto.value = numeral(removeFormatNumeric(introduccion.presupuesto.toString())).format(
     '$0,0.00',
   )
 })
@@ -74,7 +87,7 @@ onMounted(() => {
                 <input
                   class="input"
                   type="text"
-                  v-model.trim="introduccion.presupuesto"
+                  v-model.trim="inputPresupuesto"
                   @keypress.native="entradaNumerica"
                   @keyup.native="verificarCapturaNumerica"
                   @change.native="formatearPresupuesto"
@@ -91,7 +104,7 @@ onMounted(() => {
         <div class="is-size-6 has-text-weight-bold title">Suficiencia Presupuestal Estatal</div>
         <div class="subtitle is-size-5">{{ introduccion.presupuesto }}</div>
       </template>
-      <h4>{{ componente.orden }}.- INTRODUCCIÓN</h4>
+      <h4>{{ componente?.orden }}.- INTRODUCCIÓN</h4>
 
       <QuillEditor
         v-if="estatus == 1"

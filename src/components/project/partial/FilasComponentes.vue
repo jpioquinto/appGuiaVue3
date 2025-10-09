@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const props = defineProps(['componente'])
+import type { CatComponent } from '@/types/component'
+
+defineProps<{ componente: CatComponent }>()
 </script>
 <template>
   <tr>

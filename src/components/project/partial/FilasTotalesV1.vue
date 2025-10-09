@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import type { RowTotalsProps } from '@/types/partialProps'
 import { computed, ref } from 'vue'
+import { decimales } from '@/util'
+import numeral from 'numeral'
 
-const props = defineProps(['fila', 'distribucion', 'numDecimales'])
+const props = defineProps<RowTotalsProps>()
 
 const clases = computed(() => {
   if (props.fila == 'total' || props.fila == 'porcentaje') {
@@ -12,17 +15,17 @@ const clases = computed(() => {
     : 'has-text-weight-light'
 })
 
-const monedaFederal = ref(numeral(props.distribucion.federal).format('$0,0.00'))
-const monedaEstatal = ref(numeral(props.distribucion.estatal).format('$0,0.00'))
-const monedaTotal = ref(numeral(props.distribucion.total).format('$0,0.00'))
+const monedaFederal = ref<string>(numeral(props.distribucion.federal).format('$0,0.00'))
+const monedaEstatal = ref<string>(numeral(props.distribucion.estatal).format('$0,0.00'))
+const monedaTotal = ref<string>(numeral(props.distribucion.total).format('$0,0.00'))
 
-const porcFederal = ref(
+const porcFederal = ref<string>(
   numeral(props.distribucion.federal).format('0.' + decimales(props.numDecimales) + '%'),
 )
-const porcEstatal = ref(
+const porcEstatal = ref<string>(
   numeral(props.distribucion.estatal).format('0.' + decimales(props.numDecimales) + '%'),
 )
-const porcTotal = ref(numeral(props.distribucion.total).format('0.00%'))
+const porcTotal = ref<string>(numeral(props.distribucion.total).format('0.00%'))
 </script>
 <template>
   <tr v-if="fila != 'porcentaje'" :class="clases">

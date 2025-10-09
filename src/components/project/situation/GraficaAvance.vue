@@ -1,12 +1,25 @@
 <script lang="ts">
-import { reactive } from 'vue'
+import { reactive, type PropType } from 'vue'
+
 import * as am5 from '@amcharts/amcharts5'
 import * as am5xy from '@amcharts/amcharts5/xy'
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated'
+import type { ChartSerie } from '@/types/partialProps'
+
 //const props = defineProps(['series', 'anio']);
 
 export default {
-  props: ['series', 'anio'],
+  props: {
+    series: {
+      type: Array as PropType<ChartSerie[]>,
+      required: false,
+      default: () => [],
+    },
+    anio: {
+      type: Number,
+      required: true,
+    },
+  },
   setup(props) {
     const datos = reactive(props.series || [])
     return {
@@ -15,7 +28,7 @@ export default {
     }
   },
   mounted() {
-    const root = am5.Root.new(this.$refs.chartdiv)
+    const root = am5.Root.new(this.$refs.chartdiv as HTMLElement)
 
     root.setThemes([am5themes_Animated.new(root)])
 
@@ -55,8 +68,8 @@ export default {
       }),
     )
 
-    function makeSeries(name, fieldName, datos, fill) {
-      const configSeries = {
+    function makeSeries(name: string, fieldName: string, datos: ChartSerie[], fill: string | null) {
+      const configSeries: any = {
         name: name,
         xAxis: xAxis,
         yAxis: yAxis,

@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+
+import type { FilasDistribucion } from '@/types/project'
 import { useProjectStore } from '@/stores/project'
 import InputNumeric from './InputNumeric.vue'
+import { decimales } from '@/util'
+import numeral from 'numeral'
 
-const props = defineProps(['distribucion', 'numDecimales'])
+const props = defineProps<{ distribucion: FilasDistribucion; numDecimales: number }>()
 
 const project = useProjectStore()
 
-const decCantidad = ref(2)
+const decCantidad = ref<number>(2)
 
-const $activar = ref(false)
+const $activar = ref<boolean>(false)
 
 const gTotal = computed(() => numeral(props.distribucion.gTotal.total).format('$0,0.00'))
 
@@ -27,7 +31,7 @@ const total = computed(() => numeral(props.distribucion.total.total).format('$0,
 
 const porcFederal = computed(() => {
   const $total =
-    !isNumeric(props.distribucion.total.total) || props.distribucion.total.total === 0
+    !props.distribucion?.total?.total || props.distribucion.total.total === 0
       ? 1
       : props.distribucion.total.total
   return numeral((props.distribucion.total.federal / $total) * 100).format(
@@ -37,10 +41,10 @@ const porcFederal = computed(() => {
 
 const porcEstatal = computed(() => {
   const $total =
-    !isNumeric(props.distribucion.total.total) || props.distribucion.total.total === 0
+    !props.distribucion?.total?.total || props.distribucion.total.total === 0
       ? 1
       : props.distribucion.total.total
-  return numeral((props.distribucion.total.estatal / $total) * 100).format(
+  return numeral((props.distribucion.total.estatal! / $total) * 100).format(
     '0.' + decimales(props.numDecimales),
   )
 })
@@ -51,7 +55,7 @@ const mostrarInput = () => {
   }
   $activar.value = true
 }
-const actualizar = ($cantidad) => {
+const actualizar = ($cantidad: number) => {
   $activar.value = false
   /*console.log("Llamada a actualizar cantidad: " + $cantidad);
         props.distribucion.gTotal.federal = $cantidad;*/

@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import type { TableOfficeProps } from '@/types/partialProps'
 import { useProjectStore } from '@/stores/project'
+import numeral from 'numeral'
 
-const props = defineProps(['nombre', 'oficina', 'total', 'id', 'actualizar', 'estatus'])
+const props = defineProps<TableOfficeProps>() //['nombre', 'oficina', 'total', 'id', 'actualizar', 'estatus']
 
 const project = useProjectStore()
 
-const cantidad = ($cantidad) => {
-  if (!isNumeric($cantidad)) {
+const cantidad = ($cantidad: number) => {
+  if (!$cantidad) {
     return
   }
   return numeral($cantidad).format('0,0')

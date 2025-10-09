@@ -1,19 +1,12 @@
 <script setup lang="ts">
-/*import { computed, ref } from 'vue';
+import type { AnexoProps } from '@/types/activityProps'
 
-    import { useConfigStore } from '@/stores/config';
-    import { useProjectStore } from '@/stores/project';
-
-    const config = useConfigStore();
-
-    const project = useProjectStore();*/
-
-const props = defineProps(['anexo', 'icono', 'estatus'])
+const props = defineProps<AnexoProps>()
 
 const emit = defineEmits(['verAnexo', 'remover'])
 
-const truncate = (value, $length = 14) => {
-  return value.length > $length ? value.substr(0, $length) + '...' : value
+const truncate = (value: string, $length: number = 14) => {
+  return value.length > $length ? value.substring(0, $length) + '...' : value
 }
 
 const verAnexo = () => {
@@ -22,7 +15,7 @@ const verAnexo = () => {
 
 const eliminarAnexo = () => {
   emit('remover', {
-    vertiente: props.anexo.vertiente,
+    vertiente: props.anexo.vertiente!,
     idAnexo: props.anexo.id_anexo,
     idActividad: props.anexo.id_actividad,
     idComponente: props.anexo.idComponente,
@@ -49,9 +42,7 @@ const eliminarAnexo = () => {
         data-tooltip="Eliminar anexo"
         @click.prevent="eliminarAnexo"
       >
-        <span class="icon is-small">
-          <i class="fas fa-trash"></i> </span
-        >&nbsp; Eliminar
+        <span class="icon is-small"> <i class="fas fa-trash"></i> </span>&nbsp; Eliminar
       </button>
     </div>
   </div>

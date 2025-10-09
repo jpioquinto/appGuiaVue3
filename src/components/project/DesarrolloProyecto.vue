@@ -11,9 +11,9 @@ const config = useConfigStore()
 
 const project = useProjectStore()
 
-const tabCat = ref(true)
+const tabCat = ref<boolean>(true)
 
-const tabRpp = ref(false)
+const tabRpp = ref<boolean>(false)
 
 const vertiente = ref(project.vertiente || 1)
 
@@ -85,8 +85,8 @@ onBeforeMount(() => {
               v-for="(component, _index) in componentes.pec"
               :key="component.id"
               :componente="component"
-              :indice="componente?.orden"
-              :anio="anio"
+              :indice="componente?.orden!"
+              :anio="anio!"
             >
             </Componente>
           </div>
@@ -95,8 +95,8 @@ onBeforeMount(() => {
               v-for="(component, _index) in componentes.pem"
               :key="component.id"
               :componente="component"
-              :indice="componente?.orden"
-              :anio="anio"
+              :indice="componente?.orden!"
+              :anio="anio!"
             >
             </Componente>
           </div>
@@ -107,8 +107,8 @@ onBeforeMount(() => {
           v-for="component in componentesVertiente()"
           :key="component.id"
           :componente="component"
-          :indice="componente?.orden"
-          :anio="anio"
+          :indice="componente?.orden!"
+          :anio="anio!"
         >
         </Componente>
       </template>

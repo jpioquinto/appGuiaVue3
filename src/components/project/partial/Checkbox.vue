@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from 'vue'
+import type { CheckboxProps } from '@/types/partialProps'
 import { useProjectStore } from '@/stores/project'
+import { ref, onBeforeMount } from 'vue'
 
-const props = defineProps([
-  'mes',
-  'programados',
-  'idComponente',
-  'idSubcomp',
-  'vertiente',
-  'estatus',
-  'index',
-])
+const props = defineProps<CheckboxProps>()
 
 const project = useProjectStore()
 
-const programar = ref([])
+const programar = ref<string[]>([])
 
-const programarActividad = (value) => {
+const programarActividad = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
   if (value.length > 0) {
     project.programar({
       id: props.idComponente,
@@ -37,9 +31,9 @@ const programarActividad = (value) => {
 }
 
 onBeforeMount(() => {
-  const existe = props.programados.split(',').find(($mes) => $mes === props.mes)
-  if (existe) {
-    programar.value.push(existe)
+  const mes = props.programados.split(',').find(($mes) => $mes === props.mes)
+  if (mes) {
+    programar.value.push(mes)
   }
 })
 </script>
@@ -50,7 +44,7 @@ onBeforeMount(() => {
       class="is-checkradio is-success is-mediumxx"
       :id="'mes-' + props.mes + '-' + props.index"
       :value="props.mes"
-      :checked="programar.find(($mes) => $mes === props.mes)"
+      :checked="programar.find(($mes) => $mes === props.mes) ? true : false"
       @input="programarActividad"
     />
     <label :for="'mes-' + props.mes + '-' + props.index" class="pl-0"></label>

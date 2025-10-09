@@ -55,6 +55,14 @@ export function removeFormatNumeric(input: string): string {
   return input.toString().replace(/[$,*%\s ]*/g, '')
 }
 
+export function decimales(longitud: number): string {
+  let digitos = ''
+  for (let i = 0; i < longitud; i++) {
+    digitos += '0'
+  }
+  return digitos
+}
+
 export function clone(obj: object): object {
   return JSON.parse(JSON.stringify(obj))
 }

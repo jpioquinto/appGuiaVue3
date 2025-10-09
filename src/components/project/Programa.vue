@@ -1,9 +1,12 @@
 <script lang="ts">
 import { ref, reactive } from 'vue'
+
+import type { ComponentesDesarrollo } from '@/types/project'
 import VRuntimeTemplate from 'vue3-runtime-template'
-import Checkbox from './partial/Checkbox.vue'
-import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
+import { useConfigStore } from '@/stores/config'
+import Checkbox from './partial/Checkbox.vue'
+import { clone } from '@/util'
 
 export default {
   components: {
@@ -16,15 +19,17 @@ export default {
 
     const project = useProjectStore()
 
-    const componentes = reactive(clone(project.estructura.desarrollo.componentes))
+    const componentes = reactive<ComponentesDesarrollo>(
+      clone(project.estructura.desarrollo.componentes) as ComponentesDesarrollo,
+    )
 
-    const meses = ref([...project.estructura.programa.meses])
+    const meses = ref<number[]>([...project.estructura.programa.meses])
 
     const homologos = reactive(project.homologos)
 
     const programa = ref([])
 
-    const indexRow = ref(0)
+    const indexRow = ref<number>(0)
 
     return {
       componentes,
@@ -234,7 +239,7 @@ export default {
 <template>
   <div class="content">
     <div class="box">
-      <h4>{{ componente.orden }}.- PROGRAMA DE EJECUCIÓN</h4>
+      <h4>{{ componente?.orden }}.- PROGRAMA DE EJECUCIÓN</h4>
       <div class="table-container contenido-programa">
         <table
           class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
@@ -255,28 +260,6 @@ export default {
                   </div>
                   <div class="column">
                     <div class="buttons is-pulled-right" v-if="estatus == 1">
-                      <!--b-tooltip label="Agregar otro mes" position="is-left">
-                                                <b-button
-                                                    type="is-success"
-                                                    icon-left="plus-circle"
-                                                    size="is-small"
-                                                    rounded
-                                                    outlined
-                                                    @click="agregarColumna"
-                                                    :disabled="meses.length>=18"
-                                                ></b-button>
-                                            </b-tooltip>
-                                            <b-tooltip label="Quitar última columna de mes" position="is-left">
-                                                <b-button
-                                                    type="is-danger"
-                                                    icon-left="minus-circle"
-                                                    size="is-small"
-                                                    rounded
-                                                    outlined
-                                                    @click="quitarColumna"
-                                                    :disabled="meses.length<=12"
-                                                ></b-button>
-                                            </b-tooltip-->
                       <button
                         class="button is-success is-small is-rounded is-responsive"
                         @click="agregarColumna"

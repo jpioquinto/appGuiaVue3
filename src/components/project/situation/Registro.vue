@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
-import GraficaAvance from './GraficaAvance.vue'
-import { useProjectStore } from '@/stores/project'
-//import shortid from 'shortid';
 
-const props = defineProps(['situacion', 'cargado'])
+import type { SituacionVertiente } from '@/types/project'
+import { useProjectStore } from '@/stores/project'
+import GraficaAvance from './GraficaAvance.vue'
+import { makeHash } from '@/util'
+
+const props = defineProps<{ situacion: SituacionVertiente; cargado: boolean }>()
 
 const project = useProjectStore()
 
-const keyChart = ref(makeHash(12))
+const keyChart = ref<string>(makeHash(12))
 
 const anio = computed(() => project.diagnostico.anio)
 

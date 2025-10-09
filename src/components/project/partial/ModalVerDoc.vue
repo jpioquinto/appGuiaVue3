@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps(['activa', 'url'])
+defineProps<{ activa: boolean; url: string }>()
 </script>
 <template>
   <div class="modal" :class="{ 'is-active': activa }">

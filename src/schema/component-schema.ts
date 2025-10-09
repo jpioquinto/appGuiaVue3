@@ -9,6 +9,9 @@ export const CatComponentSchema = z.object({
   nombre: z.string(),
   nombre_corto: z.string(),
   orden: z.number(),
+  aporteFederal: z.optional(z.number()),
+  aporteEstatal: z.optional(z.number()),
+  total: z.optional(z.number()),
 })
 
 export const CatComponentsSchema = z.array(CatComponentSchema)

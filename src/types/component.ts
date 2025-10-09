@@ -6,6 +6,7 @@ import {
   ObjectivesSchema,
   ComponentSchema,
   ComponentsSchema,
+  AcquisSchema,
 } from '@/schema/component-schema'
 import type { VertProject } from './project'
 import type {
@@ -23,6 +24,8 @@ export type OfficesDiagnostic = z.infer<typeof OfficesDiagnosticSchema>
 export type OfficeAcquis = z.infer<typeof OfficeAcquisSchema>
 
 export type OfficesAcquis = z.infer<typeof OfficesAcquisSchema>
+
+export type Acquis = z.infer<typeof AcquisSchema>
 
 export type CatComponent = z.infer<typeof CatComponentSchema>
 

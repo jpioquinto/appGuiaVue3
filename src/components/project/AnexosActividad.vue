@@ -4,19 +4,19 @@ import ListadoAnexo from './partial/ListadoAnexo.vue'
 
 import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
-import type { AnexoExtra, Component } from '@/types/component'
+import type { AnexoExtra, Component, Components } from '@/types/component'
 import type { Anexos } from '@/types/activity'
 
 const config = useConfigStore()
 
 const project = useProjectStore()
 
-const componentes = reactive([
+const componentes = reactive<Components>([
   ...project.estructura.desarrollo.componentes.pec,
   ...project.estructura.desarrollo.componentes.pem,
 ])
 
-const icono = ref(project.iconos.pdf)
+const icono = ref<string>('')
 
 const listarAnexos = (
   anexos: Anexos,
@@ -37,7 +37,10 @@ const anexos = computed(() => {
   let listado: AnexoExtra[] = []
   componentes.forEach((componente) => {
     componente.actividades.forEach((actividad) => {
-      listado = [...listado, ...listarAnexos(actividad.anexos, componente.vertiente, componente.id)]
+      listado = [
+        ...listado,
+        ...listarAnexos(actividad?.anexos!, componente.vertiente, componente.id),
+      ]
     })
   })
   return listado

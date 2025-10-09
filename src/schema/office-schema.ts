@@ -22,10 +22,22 @@ export const TotalAcquisSchema = z.object({
   numImagenes: z.number(),
 })
 
+export const AcquisSchema = z.object({
+  id_oficina_reg: z.optional(z.number()),
+  concepto: z.string(),
+  acervo_existe: z.number(),
+  acervo_digitalizado: z.number(),
+  porc_digitalizado: z.number(),
+  libros_legajos: z.number(),
+  num_imagenes: z.number(),
+})
+
+export const AcquisCollectionsSchema = z.array(AcquisSchema)
+
 export const OfficeAcquisSchema = z.object({
   actualizar: z.boolean(),
   nombre: z.string(),
-  acervo: OfficesDiagnosticSchema,
+  acervo: AcquisCollectionsSchema,
   total: TotalAcquisSchema,
   id: z.number(),
 })

@@ -32,3 +32,9 @@ export type DataMask = {
   costo: string
   iva: string
 }
+
+export type AnexoProps = {
+  anexo: Anexo
+  icono: string
+  estatus: StateProject['estatus']
+}

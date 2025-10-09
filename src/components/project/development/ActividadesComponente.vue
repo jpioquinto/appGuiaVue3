@@ -9,70 +9,73 @@ import AdjuntarAnexo from './actions/AdjuntarAnexo.vue'
 import ModalActividad from './modal/ModalActividad.vue'
 import ModalAnexo from './modal/ModalAnexo.vue'
 
-import { useConfigStore } from '@/stores/config'
+import type { ActivitiesComponentProps } from '@/types/componentProps'
+import type { Activity, Anexos } from '@/types/activity'
 import { useProjectStore } from '@/stores/project'
+import { useConfigStore } from '@/stores/config'
+import { isInteger } from '@/util'
+import numeral from 'numeral'
 
-const props = defineProps(['actividades', 'componente', 'estatus', 'anio'])
+//const props = defineProps(['actividades', 'componente', 'estatus', 'anio'])
+const props = defineProps<ActivitiesComponentProps>()
 
 const config = useConfigStore()
 
 const project = useProjectStore()
 
-const actividadActual = ref(undefined)
+const actividadActual = ref<Activity | undefined>(undefined)
 
-const modalActiva = ref(false)
+const modalActiva = ref<boolean>(false)
 
-const modalAnexo = ref(false) //here
+const modalAnexo = ref<boolean>(false)
 
-const numActividad = ref(0)
+const numActividad = ref<number>(0)
 
-const agregar = ref(true)
+const agregar = ref<boolean>(true)
 
 const gTotal = computed(() => {
   let total = 0
-  props.actividades.forEach((actividad, index) => {
-    total += isNumeric(actividad.total) ? actividad.total : 0
+  props.componente.actividades.forEach((actividad, index) => {
+    total += actividad.total
   })
   return total
 })
 
-const formatoCantidad = (value) => {
-  if (!isNumeric(value)) {
+const formatoCantidad = (value: number) => {
+  if (!value) {
     return value
   }
 
-  return isInteger(value) ? numeral(value).format('0,0') : numeral(value).format('0,0.00')
+  return isInteger(value.toString())
+    ? numeral(value).format('0,0')
+    : numeral(value).format('0,0.00')
 }
 
-const moneda = (value, signo) => {
-  if (!signo) {
-    signo = ''
-  }
-
-  if (!isNumeric(value)) {
+const moneda = (value: number, signo: string = '') => {
+  if (!value) {
     return value
   }
   return numeral(value).format(signo + '0,0.00')
 }
 
-const limpiarCadenaHTML = (cadena, truncar) => {
-  cadena = cadena.replace(/^[<p>]*|[</p>]*$/g, '')
+const limpiarCadenaHTML = ($string: string, stringLength: number = 30) => {
+  $string = $string.replace(/^[<p>]*|[</p>]*$/g, '')
 
-  if (isInteger(truncar) && truncar > 0) {
-    cadena = cadena.length > truncar ? cadena.substr(0, truncar) + '...' : cadena
+  if (stringLength > 0) {
+    $string = $string.length > stringLength ? $string.substring(0, stringLength) + '...' : $string
   }
 
-  return cadena
+  return $string
 }
 
-const cerrarModal = ($actividad) => {
+const cerrarModal = ($actividad: Activity) => {
   if ($actividad) {
     mostrarOcultarText($actividad)
   }
   modalActiva.value = false
 }
 
-const mostrarModal = ($actividad) => {
+const mostrarModal = ($actividad: Activity) => {
   if ($actividad) {
     actividadActual.value = $actividad
     agregar.value = false
@@ -86,7 +89,7 @@ const mostrarModal = ($actividad) => {
   modalActiva.value = true
 }
 
-const abrirModalAnexo = ($actividad, numAct) => {
+const abrirModalAnexo = ($actividad: Activity, numAct: number) => {
   if (modalAnexo.value) {
     return
   }
@@ -99,10 +102,13 @@ const cerrarModalAnexo = () => {
   modalAnexo.value = false
 }
 
-const agregarAnexo = ($anexos) => {
-  actividadActual.value.anexos = $anexos
+const agregarAnexo = ($anexos: Anexos) => {
+  if (actividadActual?.value) {
+    actividadActual.value.anexos = $anexos
+  }
+
   project.agregarAnexo({
-    idActividad: actividadActual.value.id,
+    idActividad: actividadActual.value?.id!,
     idComponente: props.componente.id,
     vertiente: props.componente.vertiente,
     anexos: $anexos,
@@ -110,8 +116,8 @@ const agregarAnexo = ($anexos) => {
   cerrarModalAnexo()
 }
 
-const toggleText = (actividadId) => {
-  const actividad = props.actividades.find(($actividad) => $actividad.id == actividadId)
+const toggleText = (actividadId: Activity['id']) => {
+  const actividad = props.componente.actividades.find(($actividad) => $actividad.id == actividadId)
 
   if (!actividad) {
     return
@@ -119,16 +125,16 @@ const toggleText = (actividadId) => {
   mostrarOcultarText(actividad)
 }
 
-const mostrarOcultarText = ($actividad) => {
+const mostrarOcultarText = ($actividad: Activity) => {
   if ($actividad.toggleText) {
-    $actividad.placeHolderDescAct = limpiarCadenaHTML($actividad.descAct, 42)
-    $actividad.placeHolderDesc = limpiarCadenaHTML($actividad.desc, 42)
-    $actividad.placeHolderEnt = limpiarCadenaHTML($actividad.descEntregable, 42)
+    $actividad.placeHolderDescAct = limpiarCadenaHTML($actividad.descAct! || '', 42)
+    $actividad.placeHolderDesc = limpiarCadenaHTML($actividad.desc || '', 42)
+    $actividad.placeHolderEnt = limpiarCadenaHTML($actividad.descEntregable! || '', 42)
     $actividad.toggleText = false
   } else {
-    $actividad.placeHolderDescAct = $actividad.descAct
-    $actividad.placeHolderDesc = $actividad.desc
-    $actividad.placeHolderEnt = $actividad.descEntregable
+    $actividad.placeHolderDescAct = $actividad.descAct || ''
+    $actividad.placeHolderDesc = $actividad.desc || ''
+    $actividad.placeHolderEnt = $actividad.descEntregable || ''
     $actividad.toggleText = true
   }
 }
@@ -153,7 +159,7 @@ const mostrarOcultarText = ($actividad) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(actividad, index) in actividades" :key="index">
+          <tr v-for="(actividad, index) in props.componente.actividades" :key="index">
             <td>{{ actividad.descSubcomp }}</td>
             <td class="toggle-text" @click.prevent="toggleText(actividad.id)">
               {{ actividad.placeHolderDescAct }}
@@ -206,7 +212,7 @@ const mostrarOcultarText = ($actividad) => {
       <div class="container" v-if="modalActiva == true">
         <ModalActividad
           :componente_id="componente.id"
-          :currentActivity="actividadActual"
+          :currentActivity="actividadActual!"
           :vertiente="componente.vertiente"
           :agregar="agregar"
           :activa="modalActiva"
@@ -216,14 +222,14 @@ const mostrarOcultarText = ($actividad) => {
       <div class="container" v-if="modalAnexo == true">
         <ModalAnexo
           :activa="modalAnexo"
-          :anexos="actividadActual.anexos"
-          :actividad_id="actividadActual.id"
+          :anexos="actividadActual?.anexos!"
+          :actividad_id="actividadActual?.id!"
           :componente_id="componente.id"
           :vertiente="componente.vertiente"
           :numActividad="numActividad"
           :nombre="componente.nombre"
           :estatus="estatus"
-          :anio="anio"
+          :anio="anio!"
           @cerrarModalAnexo="cerrarModalAnexo"
           @agregarAnexo="agregarAnexo"
         />

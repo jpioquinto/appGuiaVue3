@@ -1,46 +1,49 @@
 <script setup lang="ts">
 import { computed, ref, onBeforeMount, onMounted } from 'vue'
+import type { Delta } from '@vueup/vue-quill'
 
 import ModalObjetivo from './modal/ModalObjetivo.vue'
 import ObjetivoComponente from './ObjetivoComponente.vue'
 import OficinasRegistrales from './OficinasRegistrales.vue'
 import ActividadesComponente from './ActividadesComponente.vue'
 
+import type { ComponentCardProps } from '@/types/componentProps'
 import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
+//import type { Component } from '@/types/component'
 
 const config = useConfigStore()
 
 const project = useProjectStore()
 
-const props = defineProps(['indice', 'anio', 'componente'])
+const ini = ref<number>(0)
 
-const isObjetiveModalActive = ref(false)
+const props = defineProps<ComponentCardProps>()
+
+const isObjetiveModalActive = ref<boolean>(false)
 
 const estatus = computed(() => project.obtenerEstatus)
 
-const ini = ref(0)
-
-const setActualizado = (estatus) => {
+const setActualizado = (estatus: boolean): void => {
   props.componente.actualizado = estatus
 }
 
-const eliminarComponente = () => {
+const eliminarComponente = (): void => {
   project.eliminarComponente(props.componente)
 }
 
-const mostrarModalObjetivo = () => {
+const mostrarModalObjetivo = (): void => {
   if (isObjetiveModalActive.value) {
     return
   }
   isObjetiveModalActive.value = true
 }
 
-const cerrarModalObjetivo = () => {
+const cerrarModalObjetivo = (): void => {
   isObjetiveModalActive.value = false
 }
 
-const verificarCaptura = (delta, oldDelta, source) => {
+const verificarCaptura = (delta: Delta, oldDelta: Delta, source: string): void => {
   ++ini.value
   if (ini.value > 2) {
     setActualizado(true)
@@ -131,7 +134,7 @@ onMounted(() => {
         :ordencomponente="props.componente.orden"
         :punto="2"
         :orden="index + 1"
-        :componente="props.componente.id"
+        :componenteId="props.componente.id"
         :vertiente="props.componente.vertiente"
         :estatus="estatus"
         class="pl-5"
@@ -151,8 +154,8 @@ onMounted(() => {
 
       <OficinasRegistrales
         v-if="props.componente.id == 14"
-        :listado="props.componente.acervo.listado"
-        :oficinas="props.componente.acervo.oficinas"
+        :listado="props.componente?.acervo?.listado"
+        :oficinas="props.componente?.acervo?.oficinas"
         :estatus="estatus"
       />
 

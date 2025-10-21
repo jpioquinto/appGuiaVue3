@@ -1,6 +1,7 @@
 import type { Auth, StateConfig, Steps } from '@/types/config'
 import { defineStore } from 'pinia'
 import $axios from '@/util/axios'
+import { baseURL } from '@/util'
 
 export const useConfigStore = defineStore('config', {
   state: (): StateConfig => {
@@ -66,7 +67,7 @@ export const useConfigStore = defineStore('config', {
       if (this.getToken) {
         return new Promise((resolve, reject) => {
           $axios
-            .post('api/logout')
+            .post(`${baseURL()}/api/logout`)
             .then((response) => {
               localStorage.removeItem('access_token')
               this.token = null
@@ -87,7 +88,7 @@ export const useConfigStore = defineStore('config', {
     },
     obtenerMenuLateral() {
       $axios
-        .get('api/pasos')
+        .get(`${baseURL()}/api/pasos`)
         .then((response) => {
           this.sidebar = response.data
         })

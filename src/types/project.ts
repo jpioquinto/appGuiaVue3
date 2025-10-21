@@ -2,7 +2,6 @@ import { z } from 'zod'
 import type { CatComponentsSchema } from '@/schema/component-schema'
 import type { CatComponents, Component, Components } from './component'
 import type { Entregable, Entregables, Municipios, SubComponentes, Unidades } from './activity'
-import type { Chart } from '@amcharts/amcharts5'
 import type { ChartSerie } from './partialProps'
 
 type Diagnostico = {
@@ -10,7 +9,7 @@ type Diagnostico = {
   id: null | number
 }
 
-type Inicializado = {
+export type Inicializado = {
   inicializado: boolean
   capturado: boolean
   captura?: null | string | number
@@ -61,12 +60,12 @@ export type CatalogComponents = {
   datos: CatComponents
 }
 
-type VertCatalogComponents = {
+export type VertCatalogComponents = {
   pec: CatalogComponents | null
   pem: CatalogComponents | null
 }
 
-export type ComponentesDesarrollo = {
+export type ComponentsDev = {
   pec: Components
   pem: Components
 }
@@ -80,7 +79,7 @@ type CatalogosDesarrollo = {
 
 type Desarrollo = Inicializado & {
   remover: Component['id'][]
-  componentes: ComponentesDesarrollo
+  componentes: ComponentsDev
   listadoOficinas: object
   listadoComponentes: VertCatalogComponents
   catalogos: CatalogosDesarrollo
@@ -104,12 +103,12 @@ export type FilasDistribucion = {
   porcentaje: Distribucion
 }
 
-type Resumen = Inicializado & {
+export type Resumen = Inicializado & {
   calculado: boolean
   distribucionV1: FilasDistribucion
   distribucionV2: FilasDistribucion
   porcentaje: Distribucion
-  listado: object
+  listado: CatComponents
   observaciones: null | string
   millar: null | number
   alMillar: number
@@ -128,10 +127,12 @@ type Estructura = {
   anexos: Inicializado
 }
 
-export type Homologo = {
-  id: number
-  nombre: string
+export type TuplaHomologo = {
+  id: Component['id']
+  nombre: Component['nombre']
 }
+
+export type ComponentHomologo = Record<Component['id'], TuplaHomologo>
 
 export type VertProject = {
   vertiente: null | number | string
@@ -147,5 +148,5 @@ export type StateProject = VertProject & {
   iconos: object
   diagnostico: Diagnostico
   estructura: Estructura
-  homologos: object
+  homologos: ComponentHomologo
 }

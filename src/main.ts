@@ -1,14 +1,13 @@
-//import './assets/main.css'
-/*
-import '@mdi/font/scss/materialdesignicons.scss'*/
+import './assets/sass/app.scss'
+/*import '@mdi/font/scss/materialdesignicons.scss'*/
+
 import '@fortawesome/fontawesome-free/scss/fontawesome.scss'
 import '@fortawesome/fontawesome-free/scss/brands.scss'
 import '@fortawesome/fontawesome-free/scss/regular.scss'
 import '@fortawesome/fontawesome-free/scss/solid.scss'
 import '@fortawesome/fontawesome-free/scss/v4-shims.scss'
 
-import './assets/sass/app.scss'
-//import 'bulma/css/bulma.min.css'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

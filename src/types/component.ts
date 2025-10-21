@@ -15,7 +15,7 @@ import type {
   OfficeAcquisSchema,
   OfficesAcquisSchema,
 } from '@/schema/office-schema'
-import type { Activity, Anexo, Anexos, SubComponente } from './activity'
+import type { Activities, Activity, Anexo, Anexos, SubComponente } from './activity'
 
 export type OfficeDiagnostic = z.infer<typeof OfficeDiagnosticSchema>
 
@@ -97,3 +97,14 @@ export type AnexoExtra = Anexo & {
   idComponente: Component['id']
   vertiente: Component['vertiente']
 }
+
+export type ProgramActivities = Record<string, Activities>
+
+export type ProgramComponent = {
+  nombre: Component['nombre']
+  vertiente: Component['vertiente']
+  actividades: ProgramActivities
+  programa: Component['programa']
+}
+
+export type ProgramComponents = Record<Component['id'], ProgramComponent>

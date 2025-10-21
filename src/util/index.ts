@@ -1,3 +1,5 @@
+import numeral from 'numeral'
+
 export const baseURL = () => (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : '')
 
 export const isInteger = (value: string): boolean => {
@@ -61,6 +63,10 @@ export function decimales(longitud: number): string {
     digitos += '0'
   }
   return digitos
+}
+
+export function numberFormat(value: number, decimalesNum: number = 2): number {
+  return numeral(numeral(value).format(`0.${decimales(decimalesNum)}`)).value()!
 }
 
 export function clone(obj: object): object {

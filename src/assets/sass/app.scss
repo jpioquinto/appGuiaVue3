@@ -1,7 +1,7 @@
 @use 'bulma/bulma';
 @use 'bulma-extensions/dist/css/bulma-extensions.min.css';
-@use 'bulma-block-list/src/block-list.scss';
+@use 'bulma-block-list/src/block-list';
 @use '@creativebulma/bulma-tooltip/dist/bulma-tooltip.min.css';
 
-@use 'login.scss';
-@use 'guia.scss';
+@use 'login';
+@use 'guia';

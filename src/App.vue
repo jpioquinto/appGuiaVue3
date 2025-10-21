@@ -1,56 +1,67 @@
-<script setup lang="ts">
-import { computed, ref, onMounted, defineAsyncComponent } from 'vue'
+<script lang="ts">
+import { computed, ref } from 'vue'
 
 import HeaderGuia from './components/layouts/HeaderApp.vue'
 import { useConfigStore } from '@/stores/config'
 
-//import ContentLogin from './layouts/ContentLogin.vue';
-//import ContentProject from './layouts/ContentProject.vue';
+import ContentProject from './components/layouts/ContentProject.vue'
+import ContentLogin from './components/layouts/ContentLogin.vue'
+import AboutView from './views/AboutView.vue'
 
-const config = useConfigStore()
+export default {
+  components: {
+    AboutView,
+    HeaderGuia,
+    ContentLogin,
+    ContentProject,
+  },
 
-const classLoading = ref(config.loader.classLoading)
+  setup() {
+    const config = useConfigStore()
 
-const logoHeader = computed(() => {
-  return document.getElementById('logos')!.getAttribute('logo-header')
-})
+    let classLoading = ref(config.loader.classLoading)
 
-const classActive = computed(() => {
-  if (!config.loader.isLoading) {
-    return ''
-  }
-  return 'is-active'
-})
+    const logoHeader = computed(() => {
+      return ''
+    })
 
-const ComponentApp = defineAsyncComponent(() => {
-  return new Promise((resolve) => {
-    if (config.layout !== 'ContentLogin') {
-      resolve(import('./components/layouts/ContentProject.vue') as never)
-      return
+    const classActive = computed(() => {
+      if (!config.loader.isLoading) {
+        return ''
+      }
+      return 'is-active'
+    })
+
+    return {
+      logoHeader,
+      config,
+      classActive,
+      classLoading,
     }
-    resolve(import('./components/layouts/ContentLogin.vue') as never)
-  })
-})
+  },
 
-onMounted(() => config.habilitaInterceptor())
+  mounted() {
+    this.config.habilitaInterceptor()
+  },
+}
 </script>
 
 <template>
-  <HeaderGuia
-    :logo="logoHeader"
-    :nickname="config.nickname"
-    v-if="config.layout != 'ContentLogin'"
-  ></HeaderGuia>
-  <div :class="config.layout != 'ContentLogin' ? 'section' : ''">
-    <component :is="config.layout"></component>
-    <ComponentApp />
-  </div>
-  ssssssssssssss
-  <notifications group="auth" position="bottom right" />
+  <div class="app">
+    <HeaderGuia
+      :logo="logoHeader"
+      :nickname="config.nickname"
+      v-if="config.layout != 'ContentLogin'"
+    />
+    <div :class="config.layout != 'ContentLogin' ? 'section' : ''">
+      Componente dinámico aquí:
+      <component :is="config.layout"></component>
+    </div>
+    <!--AboutView /-->
+    <notifications group="auth" position="bottom right" />
 
-  <div class="pageloader" :class="[classActive, classLoading]">
-    <span class="title is-size-5 has-text-weight-bold">Cargando, espere un momento...</span>
+    <div class="pageloader" :class="[classActive, classLoading]">
+      <span class="title is-size-5 has-text-weight-bold">Cargando, espere un momento...</span>
+    </div>
   </div>
-
-  <RouterView />
 </template>

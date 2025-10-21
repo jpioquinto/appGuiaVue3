@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { clone } from '@/util'
 import $axios from '@/util/axios'
+import { clone, baseURL } from '@/util'
+import gobierno from '@/assets/images/logos/gobierno-mx.svg'
 
 import AccionGuardar from './partial/AccionGuardar.vue'
 import AccionDescarga from './partial/AccionDescarga.vue'
@@ -138,7 +139,7 @@ const guardar = () => {
     vertiente: project.vertiente ?? undefined,
     version: project.version ?? 0,
     rm: project.removerComponente,
-    id: project.id ?? undefined,
+    id: project.id && project.id > 0 ? project.id : undefined,
     seguimiento: { ...seguimiento() },
     desarrollo: procesarComponentes(
       filtrarComponentes([
@@ -150,7 +151,7 @@ const guardar = () => {
 
   console.log(datos)
   $axios
-    .post('api/save', datos)
+    .post(`${baseURL()}/api/save`, datos)
     .then((response) => {
       console.log(response)
     })
@@ -160,13 +161,12 @@ const guardar = () => {
 }
 </script>
 <template>
-  <header class="hero">
+  <header class="hero is-primary">
     <div class="hero-head">
       <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-          <a class="navbar-item">
-            <img class="navbar-brand-logo" :src="logo" alt="SEDATU" />
-          </a>
+          <img class="navbar-brand-logo" :src="gobierno" alt="SEDATU" />
+          <a class="navbar-item"> </a>
           <a class="navbar-item is-tab is-hidden-mobile1">
             <span class="icon is-medium"><i class="fa fa-home"></i></span>Inicio
           </a>

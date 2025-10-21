@@ -8,7 +8,7 @@ const props = defineProps(['clase'])
     @click="() => $emit('guardar')"
   >
     <span class="icon is-medium" :class="props.clase">
-      <Icon :img="'save'" />
+      <IconFas :img="'save'" />
     </span>
   </a>
 </template>

@@ -4,7 +4,7 @@ import type { Distribucion, StateProject } from './project'
 
 export type CheckboxProps = {
   mes: string
-  programados: string
+  programados: string[]
   idComponente: Component['id']
   idSubcomp: SubComponente['id_subcomponente']
   vertiente: Component['vertiente']

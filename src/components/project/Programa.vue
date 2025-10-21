@@ -1,12 +1,14 @@
 <script lang="ts">
 import { ref, reactive } from 'vue'
 
-import type { ComponentesDesarrollo } from '@/types/project'
+import type { ProgramComponents, Component, ProgramActivities, Components } from '@/types/component'
+import type { ComponentHomologo, ComponentsDev } from '@/types/project'
 import VRuntimeTemplate from 'vue3-runtime-template'
 import { useProjectStore } from '@/stores/project'
 import { useConfigStore } from '@/stores/config'
 import Checkbox from './partial/Checkbox.vue'
 import { clone } from '@/util'
+import type { Activity } from '@/types/activity'
 
 export default {
   components: {
@@ -19,15 +21,15 @@ export default {
 
     const project = useProjectStore()
 
-    const componentes = reactive<ComponentesDesarrollo>(
-      clone(project.estructura.desarrollo.componentes) as ComponentesDesarrollo,
+    const componentes = reactive<ComponentsDev>(
+      clone(project.estructura.desarrollo.componentes) as ComponentsDev,
     )
 
     const meses = ref<number[]>([...project.estructura.programa.meses])
 
-    const homologos = reactive(project.homologos)
+    const homologos = reactive<ComponentHomologo>(project.homologos)
 
-    const programa = ref([])
+    const programa = reactive<ProgramComponents>({})
 
     const indexRow = ref<number>(0)
 
@@ -54,18 +56,18 @@ export default {
     filas() {
       let trs = '<tbody>'
       this.indexRow = 0
-      for (const id in this.programa.value) {
+      for (const id in this.programa) {
         trs +=
           `<tr><td ` +
-          this.generaAtributoRowspan(this.programa.value[id].actividades) +
+          this.generaAtributoRowspan(this.programa[id].actividades) +
           ` class='is-vcentered has-background-white-ter'>
-                                <p class='has-text-left'>${this.programa.value[id].nombre}</p>
+                                <p class='has-text-left'>${this.programa[id].nombre}</p>
                                 </td>`
         trs += this.generaFilas(
-          this.programa.value[id].actividades,
-          this.programa.value[id].programa,
-          id,
-          this.programa.value[id].vertiente,
+          this.programa[id].actividades,
+          this.programa[id].programa,
+          +id,
+          this.programa[id].vertiente,
         )
       }
       return trs + '</tbody>'
@@ -78,23 +80,23 @@ export default {
     },
 
     quitarColumna() {
-      this.project.desProgramarTodos(this.meses.pop())
+      this.project.desProgramarTodos(this.meses.pop()!)
       this.project.actualizarCapturaPrograma()
     },
 
-    agruparActividades(actividades) {
-      const listado = {}
+    agruparActividades(actividades: Component['actividades']): ProgramActivities {
+      const listado = {} as ProgramActivities
       actividades.forEach((value, index) => {
         if (!listado.hasOwnProperty('subcomp_' + value.subcomp)) {
-          listado['subcomp_' + value.subcomp] = []
+          listado[`subcomp_${value.subcomp}`] = []
         }
-        listado['subcomp_' + value.subcomp].push(value)
+        listado[`subcomp_${value.subcomp}`].push(value)
       })
       return listado
     },
 
-    agruparActividadesComponente(componentes) {
-      const listado = {}
+    agruparActividadesComponente(componentes: Components): ProgramComponents {
+      const listado = {} as ProgramComponents
       componentes.forEach((value, index) => {
         listado[value.id] = {
           vertiente: value.vertiente,
@@ -106,9 +108,9 @@ export default {
       return listado
     },
 
-    homologarComponentes(componentes) {
-      const listado = []
-      const integral = []
+    homologarComponentes(componentes: Components): Components {
+      const listado: Components = []
+      const integral: Components = []
 
       componentes.forEach((componente) => {
         listado[componente.id] = componente
@@ -128,21 +130,20 @@ export default {
         integral[componente.id] = componente
 
         if (this.homologos[componente.id] && listado[this.homologos[componente.id].id]) {
-          integral[componente.id].actividades = Object.assign(
-            integral[componente.id].actividades,
-            listado[componente.id].actividades,
-          )
+          integral[componente.id].actividades = [
+            ...integral[componente.id].actividades,
+            ...listado[componente.id].actividades,
+          ]
         }
-
-        integral[componente.id].actividades = this.agruparActividades(
+        /*integral[componente.id].actividades = this.agruparActividades(
           integral[componente.id].actividades,
-        )
+        )*/
       })
 
       return integral
     },
 
-    estaHomologado(idComponente) {
+    estaHomologado(idComponente: Component['id']): boolean {
       let homologado = false
       for (const idComp in this.homologos) {
         if (this.homologos[idComp].id === idComponente) {
@@ -153,25 +154,30 @@ export default {
       return homologado
     },
 
-    obtenerIdHomologo(idComponente) {
+    obtenerIdHomologo(idComponente: Component['id']): Component['id'] {
       let id = 0
       for (const idComp in this.homologos) {
         if (this.homologos[idComp].id === idComponente) {
-          id = idComp
+          id = +idComp
           break
         }
       }
       return id
     },
 
-    generaAtributoRowspan(actividades) {
+    generaAtributoRowspan(actividades: ProgramActivities) {
       if (Object.keys(actividades).length <= 1) {
         return ''
       }
       return "rowspan='" + Object.keys(actividades).length + "'"
     },
 
-    generarColumnasMeses(idComponente, idSubcomp, programados, vertiente) {
+    generarColumnasMeses(
+      idComponente: Component['id'],
+      idSubcomp: Activity['subcomp'],
+      programados: string[],
+      vertiente: Component['vertiente'],
+    ) {
       let columnas = ''
       this.meses.forEach((mes, index) => {
         columnas += `<td class="is-vcentered has-text-centered">
@@ -189,20 +195,25 @@ export default {
       return columnas
     },
 
-    generaFilas(actividades, programa, idComponente, vertiente) {
+    generaFilas(
+      actividades: ProgramActivities,
+      programa: Component['programa'],
+      idComponente: Component['id'],
+      vertiente: Component['vertiente'],
+    ) {
       let inicial = true
       let trs = ''
       for (const idSubcomp in actividades) {
         if (!programa.hasOwnProperty(idSubcomp.replace('subcomp_', ''))) {
-          programa[idSubcomp.replace('subcomp_', '')] = []
+          programa[+idSubcomp.replace('subcomp_', '')] = []
         }
         trs +=
           (inicial ? '' : '<tr>') +
           `<td class='has-background-white-bis'>${actividades[idSubcomp][0].descSubcomp}</td>` +
           this.generarColumnasMeses(
             idComponente,
-            idSubcomp.replace('subcomp_', ''),
-            programa[idSubcomp.replace('subcomp_', '')],
+            +idSubcomp.replace('subcomp_', ''),
+            programa[+idSubcomp.replace('subcomp_', '')],
             vertiente,
           ) +
           `</tr>`
@@ -214,21 +225,20 @@ export default {
   },
 
   beforeMount() {
-    if (!this.project.desarrollo.inicializado && this.project.id) {
+    if (!this.project.estructura.desarrollo.inicializado && this.project.id) {
       this.project.obtenerDesarrollo()
     }
   },
 
   mounted() {
-    this.programa.value = this.agruparActividadesComponente(
-      this.project.vertiente == 1 ? [...this.componentes.pec] : [...this.componentes.pem],
-    ) //console.log(this.programa.value);
-
     if (this.project.vertiente === '1,2') {
-      this.programa.value = this.homologarComponentes([
-        ...this.componentes.pec,
-        ...this.componentes.pem,
-      ])
+      this.programa = this.agruparActividadesComponente(
+        this.homologarComponentes([...this.componentes.pec, ...this.componentes.pem]),
+      )
+    } else {
+      this.programa = this.agruparActividadesComponente(
+        this.project.vertiente == 1 ? [...this.componentes.pec] : [...this.componentes.pem],
+      )
     }
 
     this.project.inicializarPrograma()
@@ -293,9 +303,9 @@ export default {
               </th>
             </tr>
           </thead>
-          <!--tbody v-html="filas"></tbody-->
+          <tbody v-html="filas"></tbody>
           <!--VRuntimeTemplate :template="filas" /-->
-          <v-runtime-template :template="filas"></v-runtime-template>
+          <!--v-runtime-template :template="filas"></v-runtime-template-->
         </table>
       </div>
     </div>

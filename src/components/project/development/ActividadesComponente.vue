@@ -34,7 +34,7 @@ const numActividad = ref<number>(0)
 const agregar = ref<boolean>(true)
 
 const gTotal = computed(() => {
-  let total = 0
+  let total: number = 0
   props.componente.actividades.forEach((actividad, index) => {
     total += actividad.total
   })

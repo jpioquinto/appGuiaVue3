@@ -3,6 +3,8 @@ import { ref, reactive, computed } from 'vue'
 import { useConfigStore } from '@/stores/config'
 import { notify } from '@kyvg/vue3-notification'
 import $axios from '@/util/axios'
+import { baseURL } from '@/util'
+import router from '@/router'
 
 defineProps(['logo'])
 
@@ -133,29 +135,31 @@ const loginUser = () => {
     remember: usuario.recordar,
   }
 
-  $axios
-    .post('api/login', $params)
-    .then((response) => {
-      $axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.access_token
-      localStorage.setItem('access_token', response.data.access_token)
-      config.asignarToken({
-        token: response.data.access_token,
-        nickname: response.data.user.nickname,
-        acciones: response.data.user.acciones,
-      })
+  $axios.get(`${baseURL()}/sanctum/csrf-cookie`).then(() => {
+    $axios
+      .post(`${baseURL()}/api/login`, $params)
+      .then((response) => {
+        $axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.access_token
+        localStorage.setItem('access_token', response.data.access_token)
+        config.asignarToken({
+          token: response.data.access_token,
+          nickname: response.data.user.nickname,
+          acciones: response.data.user.acciones,
+        })
 
-      notify({
-        group: 'auth',
-        type: 'success',
-        text: `Bienvenido ${response.data.user.nombre}`,
-      })
+        notify({
+          group: 'auth',
+          type: 'success',
+          text: `Bienvenido ${response.data.user.nombre}`,
+        })
 
-      setTimeout(() => {
-        config.asignarLayout('ContentProject')
-        //router.push({ name: "inicio" });
-      }, 1200)
-    })
-    .catch(handleErrorsLogin)
+        setTimeout(() => {
+          config.asignarLayout('ContentProject')
+          router.push({ name: 'inicio' })
+        }, 1200)
+      })
+      .catch(handleErrorsLogin)
+  })
 }
 
 const handleErrorsLogin = () => {
@@ -225,7 +229,9 @@ const handleErrorsLogin = () => {
             </p>
           </div>
           <div class="buttons btn-submit">
-            <button type="submit" class="button is-danger is-rounded">Ingresar</button>
+            <button type="submit" class="button is-danger is-rounded has-text-white-bis">
+              Ingresar
+            </button>
           </div>
         </form>
       </div>

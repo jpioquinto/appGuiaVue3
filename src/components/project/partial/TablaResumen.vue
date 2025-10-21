@@ -72,11 +72,11 @@ export default defineComponent({
           filas.total.estatal = 0
         }
 
-        filas.total.federal += componente?.aporteFederal || 0
+        filas.total.federal += +componente?.aporteFederal! || 0
 
-        filas.total.estatal += componente?.aporteEstatal || 0
+        filas.total.estatal += +componente?.aporteEstatal! || 0
 
-        filas.total.total += componente?.total! > 0 ? componente?.total! : 0
+        filas.total.total += +componente?.total! > 0 ? +componente?.total! : 0
       })
       filas.millar.federal = filas.millar.total =
         !this.project.estructura.resumen.millar || this.project.estructura.resumen.millar === 0
@@ -114,7 +114,7 @@ export default defineComponent({
     totalComponentes() {
       let total = 0
       this.componentes.map((componente) => {
-        total += componente?.total! > 0 ? 1 : 0
+        total += +componente?.total! > 0 ? 1 : 0
       })
       return total
     },

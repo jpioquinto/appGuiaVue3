@@ -70,8 +70,8 @@ export default {
         pem: null,
       },
       catalogos: {
-        subComponentes: {},
-        entregables: {},
+        subComponentes: [],
+        entregables: [],
         unidades: [],
         municipios: [],
       },

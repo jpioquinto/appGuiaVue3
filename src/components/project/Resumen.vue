@@ -1,8 +1,18 @@
 <script lang="ts">
 import { ref, reactive } from 'vue'
-import TablaResumen from './partial/TablaResumen.vue'
-import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project'
+import { useConfigStore } from '@/stores/config'
+import { makeHash } from '@/util'
+import numeral from 'numeral'
+
+import TablaResumen from './partial/TablaResumen.vue'
+import {
+  type ComponentHomologo,
+  type StateProject,
+  type ComponentsDev,
+  type Resumen,
+} from '@/types/project'
+import type { CatComponent, CatComponents, Component, Components } from '@/types/component'
 
 export default {
   components: {
@@ -14,16 +24,16 @@ export default {
     const project = useProjectStore()
 
     return {
-      desarrollo: reactive(project.estructura.desarrollo.componentes),
-      porcDecimales: ref(project.anio === 2020 ? 2 : 8),
-      capturado: ref(project.estructura.resumen.capturado),
-      homologos: reactive(project.homologos),
-      componentes: reactive({ pec: [], pem: [] }),
-      listado: ref(project.estructura.resumen.listado),
-      vertiente: ref(project.vertiente),
-      keyTabla: ref(makeHash()),
-      anio: ref(project.anio),
-      observaciones: ref(''),
+      componentes: reactive<{ pec: CatComponents; pem: CatComponents }>({ pec: [], pem: [] }),
+      desarrollo: reactive<ComponentsDev>(project.estructura.desarrollo.componentes),
+      capturado: ref<Resumen['capturado']>(project.estructura.resumen.capturado),
+      listado: ref<Resumen['listado']>(project.estructura.resumen.listado),
+      vertiente: ref<StateProject['vertiente']>(project.vertiente),
+      porcDecimales: ref<number>(project.anio === 2020 ? 2 : 8),
+      homologos: reactive<ComponentHomologo>(project.homologos),
+      keyTabla: ref<string>(makeHash()),
+      anio: ref<number>(project.anio!),
+      observaciones: ref<string>(''),
       project,
       config,
     }
@@ -74,7 +84,7 @@ export default {
       )
       return this.obtenerMontosComponente([...$listadoComponentes], [...this.desarrollo.pem], true)
     },
-    estaHomologado(idComponente) {
+    estaHomologado(idComponente: Component['id']): boolean {
       let homologado = false
       for (const idComp in this.homologos) {
         if (this.homologos[idComp].id === idComponente) {
@@ -84,24 +94,29 @@ export default {
       }
       return homologado
     },
-    obtenerIdHomologo(idComponente) {
+    obtenerIdHomologo(idComponente: Component['id']): Component['id'] {
       return this.homologos.hasOwnProperty(idComponente)
         ? this.homologos[idComponente].id
         : idComponente
     },
-    setComponentes(vertiente) {
+    setComponentes(vertiente: StateProject['vertiente']) {
       if (vertiente === '1,2') {
-        this.componentes.pec = this.project.listadoComponentes(1).datos
-        this.componentes.pem = this.project.listadoComponentes(2).datos
+        const componentesPEC = this.project.listadoComponentes(1)
+        this.componentes.pec = componentesPEC?.datos || []
+
+        const componentesPEM = this.project.listadoComponentes(2)
+        this.componentes.pem = componentesPEM?.datos || []
+
         return this.componentes
       }
 
-      return (this.componentes[Number(vertiente) === 1 ? 'pec' : 'pem'] =
-        this.project.listadoComponentes(vertiente).datos)
+      const componentes = this.project.listadoComponentes(+vertiente!)
+
+      return (this.componentes[Number(vertiente) === 1 ? 'pec' : 'pem'] = componentes?.datos || [])
     },
-    inicializarComponentes(vertiente) {
-      if (this.project.listadoComponentes(vertiente) == null) {
-        return this.project.obtenerComponentes({ vertiente: vertiente }).then((response) => {
+    inicializarComponentes(vertiente: StateProject['vertiente']) {
+      if (this.project.listadoComponentes(+vertiente!) == null) {
+        return this.project.obtenerComponentes({ vertiente }).then((response) => {
           this.setComponentes(vertiente)
           this.capturado = true
         })
@@ -109,7 +124,7 @@ export default {
       this.setComponentes(vertiente)
       this.capturado = true
     },
-    homologarNombreComponente(componentes) {
+    homologarNombreComponente(componentes: CatComponents): CatComponents {
       return componentes.map((componente) => {
         if (!this.homologos.hasOwnProperty(componente.componentes_id)) {
           return componente
@@ -118,26 +133,26 @@ export default {
         return componente
       })
     },
-    obtenerComponentesRestantes(componentes) {
+    obtenerComponentesRestantes(componentes: CatComponents): CatComponents {
       return componentes.filter((componente) => !this.estaHomologado(componente.componentes_id))
     },
-    obtenerMontos(componente, desarrollo) {
+    obtenerMontos(componente: CatComponent, desarrollo: Components) {
       if (!this.estaHomologado(componente.componentes_id) && this.anio <= 2020) {
         componente.total =
-          componente.hasOwnProperty('total') && numeral(componente.total).value()
-            ? numeral(componente.total).value() +
+          componente?.total && numeral(componente.total).value()
+            ? numeral(componente.total).value()! +
               numeral(
                 this.obtenerTotalComponente(
                   desarrollo,
                   this.obtenerIdHomologo(componente.componentes_id),
                 ),
-              ).value()
+              ).value()!
             : numeral(
                 this.obtenerTotalComponente(
                   desarrollo,
                   this.obtenerIdHomologo(componente.componentes_id),
                 ),
-              ).value()
+              ).value()!
 
         componente.total = numeral(componente.total).format('$0,0.00')
         return componente
@@ -154,39 +169,43 @@ export default {
         )
       }
 
-      componente.total = componente.hasOwnProperty('total')
-        ? numeral(componente.total).value() +
+      componente.total = componente?.total
+        ? numeral(componente.total).value()! +
           numeral(
             this.obtenerTotalComponente(
               desarrollo,
               this.obtenerIdHomologo(componente.componentes_id),
             ),
-          ).value()
+          ).value()!
         : numeral(
             this.obtenerTotalComponente(
               desarrollo,
               this.obtenerIdHomologo(componente.componentes_id),
             ),
-          ).value()
+          ).value()!
 
       componente.aporteFederal = numeral(componente.aporteFederal).format('$0,0.00')
       componente.aporteEstatal = numeral(componente.aporteEstatal).format('$0,0.00')
       componente.total = numeral(componente.total).format('$0,0.00')
       return componente
     },
-    obtenerAportacionFederal(desarrollo, idComponente) {
+    obtenerAportacionFederal(desarrollo: Components, idComponente: Component['id']): number {
       const componente = desarrollo.find((componente) => componente.id === idComponente)
-      return componente ? numeral(componente.aporteFederal).value() : 0
+      return componente ? numeral(componente.aporteFederal).value()! : 0
     },
-    obtenerAportacionEstatal(desarrollo, idComponente) {
+    obtenerAportacionEstatal(desarrollo: Components, idComponente: Component['id']): number {
       const componente = desarrollo.find((componente) => componente.id === idComponente)
-      return componente ? numeral(componente.aporteEstatal).value() : 0
+      return componente ? numeral(componente.aporteEstatal).value()! : 0
     },
-    obtenerTotalComponente(desarrollo, idComponente) {
+    obtenerTotalComponente(desarrollo: Components, idComponente: Component['id']): number {
       const componente = desarrollo.find((componente) => componente.id === idComponente)
-      return componente ? numeral(componente.total).value() : 0
+      return componente ? numeral(componente.total).value()! : 0
     },
-    obtenerMontosComponente(componentes, desarrollo, integral) {
+    obtenerMontosComponente(
+      componentes: CatComponents,
+      desarrollo: Components,
+      integral: boolean = false,
+    ): CatComponents {
       componentes.map((componente) => {
         if (integral) {
           return this.obtenerMontos(componente, desarrollo)
@@ -209,7 +228,7 @@ export default {
 
       return componentes
     },
-    actualizarDistribucion(_porcentajes) {
+    actualizarDistribucion(_porcentajes: never) {
       /*console.log(porcentajes);
                 this.distribuciones.filas.porcentaje.federal = porcentajes.federal;
                 this.distribuciones.filas.porcentaje.estatal = porcentajes.estatal;
@@ -243,7 +262,7 @@ export default {
 
         me.inicializarComponentes(me.vertiente)
 
-        resolve()
+        resolve(0)
       })
     },
     async inicia() {

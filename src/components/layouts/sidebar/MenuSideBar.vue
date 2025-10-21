@@ -22,7 +22,7 @@ const seleccionarElemento = ($elemento: Step) => {
       <p class="menu-label">
         <slot name="titulo"></slot>
       </p>
-      <ul class="menu-list block-list is-small">
+      <ul class="menu-list block-list is-small is-light">
         <MenuItem
           v-for="elemento in elementos"
           :key="elemento.id_punto"

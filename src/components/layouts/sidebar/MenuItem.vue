@@ -56,6 +56,7 @@ const iconoConsulta = () => {
     "
   >
     <router-link
+      tag="li"
       :to="{ name: elemento.componente }"
       class="has-text-black-bis has-text-weight-medium"
       active-class="is-active"
@@ -63,6 +64,6 @@ const iconoConsulta = () => {
     >
       {{ elemento.punto }}
     </router-link>
-    <Icon :img="icon" size="is-small" type="is-success" />
+    <IconFas :img="icon" size="is-small" type="is-success" />
   </li>
 </template>

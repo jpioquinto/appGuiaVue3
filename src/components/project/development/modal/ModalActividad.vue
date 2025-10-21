@@ -334,7 +334,8 @@ onBeforeMount(() => {
       municipios.value = data as Municipios
     })
   }
-  if ((subComponentes.value = project.obtenerSubcomponente(props.componente_id)) == undefined) {
+
+  if ((subComponentes.value = project.obtenerSubcomponente(props.componente_id))?.length == 0) {
     project
       .obtenSubcomponente(props.componente_id)
       .then((data: Record<Component['id'], SubComponentes> | unknown): void => {
@@ -346,10 +347,10 @@ onBeforeMount(() => {
       })
   }
 
-  if ((entregables.value = project.obtenerEntregables(props.componente_id)) == undefined) {
+  if ((entregables.value = project.obtenerEntregables(props.componente_id))?.length == 0) {
     project
       .obtenEntregables(props.componente_id)
-      .then((data: Record<Component['id'], Entregables> | unknown) => {
+      .then((data: Record<Component['id'], Entregables> | unknown): void => {
         entregables.value =
           data && data[props.componente_id as keyof typeof data]
             ? data[props.componente_id as keyof typeof data]

@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from 'vue-router'
 
-import ContentLogin from '../components/layouts/ContentLogin.vue'
+import ContentLogin from '@/components/layouts/ContentLogin.vue'
+import ContentProject from '@/components/layouts/ContentProject.vue'
 import Introduccion from '../components/project/Introduccion.vue'
 import Antecedente from '../components/project/AntecedenteInstitucion.vue'
 import Situacion from '../components/project/Situacion.vue'
@@ -19,7 +20,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: ContentLogin,
+      component: () => import('@/components/layouts/ContentLogin.vue'),
     },
     {
       path: '/inicio',

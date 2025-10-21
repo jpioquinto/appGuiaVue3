@@ -23,7 +23,7 @@ const tope = computed(() => {
 })
 
 onMounted(() => {
-  if (config.sidebar == null) {
+  if (config.sidebar.length === 0) {
     console.log('cargamos...')
     config.obtenerMenuLateral()
   }
@@ -40,6 +40,7 @@ onMounted(() => {
     <main class="column is-10">
       <!--Aquí el contenido del Proyecto Ejecutivo de Modernización-->
       <router-view></router-view>
+      <!--RouterView /-->
     </main>
   </div>
 </template>

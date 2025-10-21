@@ -49,7 +49,7 @@ export default {
         return state.estructura.desarrollo.catalogos.subComponentes[$id]
       }
 
-      return {} as SubComponentes
+      return [] as SubComponentes
     }
   },
   obtenerEntregables(state: StateProject) {
@@ -58,7 +58,7 @@ export default {
         return state.estructura.desarrollo.catalogos.entregables[$id]
       }
 
-      return {} as Entregables
+      return [] as Entregables
     }
   },
   obtenerUnidades(state: StateProject) {

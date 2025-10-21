@@ -1,15 +1,11 @@
+<script setup lang="ts"></script>
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div class="test">
+    <h1>Acerca de...</h1>
+    <ul class="block-list is-light">
+      <li>Item one</li>
+      <li>Item two</li>
+      <li>Item three</li>
+    </ul>
   </div>
 </template>
-
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>

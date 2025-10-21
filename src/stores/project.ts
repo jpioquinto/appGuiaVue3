@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import getters from './gettersProject'
 import $axios from '@/util/axios'
+import { baseURL, decimales, numberFormat } from '@/util'
+import numeral from 'numeral'
 
 //import '../util_helper'
 import type { StateProject, VertProject } from '@/types/project'
@@ -51,7 +53,7 @@ export const useProjectStore = defineStore('project', {
     obtenerProyecto() {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/introduccion/' + (this.id !== null ? this.id : 0))
+          .get(`${baseURL()}/api/introduccion/` + (this.id !== null ? this.id : 0))
           .then((response) => {
             this.iconos = response.data.iconos
             this.diagnostico.anio = response.data.anioDiagnostico
@@ -94,7 +96,7 @@ export const useProjectStore = defineStore('project', {
     obtenerAntecedentes() {
       $axios
         .get(
-          'api/antecedente/' +
+          `${baseURL()}/api/antecedente/` +
             (this.id !== null ? this.id : 0) +
             '/' +
             (this.diagnostico.id !== null ? this.diagnostico.id : 0),
@@ -142,7 +144,7 @@ export const useProjectStore = defineStore('project', {
     obtenerSituacion() {
       $axios
         .get(
-          'api/situacion/' +
+          `${baseURL()}/api/situacion/` +
             (this.diagnostico.id !== null ? this.diagnostico.id : 0) +
             '/' +
             (this.id !== null ? this.id : 0),
@@ -173,7 +175,7 @@ export const useProjectStore = defineStore('project', {
     },
     obtenerDesarrollo() {
       $axios
-        .get('api/desarrollo/' + this.id)
+        .get(`${baseURL()}/api/desarrollo/${this.id}`)
         .then((response) => {
           this.estructura.desarrollo.inicializado = true
           if (response.data.hasOwnProperty('pec')) {
@@ -190,7 +192,7 @@ export const useProjectStore = defineStore('project', {
     obtenerComponentes({ vertiente }: VertProject) {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/componentes/' + vertiente + '/' + (this.id !== null ? this.id : 0))
+          .get(`${baseURL()}/api/componentes/${vertiente}/${this.id !== null ? this.id : 0}`)
           .then((response) => {
             if (vertiente === '1,2') {
               this.estructura.desarrollo.listadoComponentes.pec = { datos: [] }
@@ -451,7 +453,7 @@ export const useProjectStore = defineStore('project', {
     obtenerOficinas() {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/oficinas/' + (this.id !== null ? this.id : 0))
+          .get(`${baseURL()}/api/oficinas/` + (this.id !== null ? this.id : 0))
           .then((response) => {
             if (response.data.hasOwnProperty('listado')) {
               this.estructura.desarrollo.listadoOficinas = response.data.listado
@@ -482,7 +484,7 @@ export const useProjectStore = defineStore('project', {
       return new Promise((resolve, reject) => {
         $axios
           .get(
-            'api/oficina/' +
+            `${baseURL()}/api/oficina/` +
               data.id +
               '/' +
               (this.diagnostico.id !== null ? this.diagnostico.id : 0),
@@ -543,7 +545,12 @@ export const useProjectStore = defineStore('project', {
     obtenSubcomponente(componenteId: Component['id']) {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/subcomponente/' + componenteId + '/' + (this.id !== null ? this.id : 0))
+          .get(
+            `${baseURL()}/api/subcomponente/` +
+              componenteId +
+              '/' +
+              (this.id !== null ? this.id : 0),
+          )
           .then((response) => {
             if (response.data.hasOwnProperty(componenteId)) {
               this.estructura.desarrollo.catalogos.subComponentes[componenteId] =
@@ -560,7 +567,7 @@ export const useProjectStore = defineStore('project', {
     obtenerSubActividades(actividadId: Activity['act']) {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/subactividades/' + actividadId)
+          .get(`${baseURL()}/api/subactividades/${actividadId}`)
           .then((response) => {
             resolve(response.data)
           })
@@ -573,7 +580,7 @@ export const useProjectStore = defineStore('project', {
     obtenEntregables(componenteId: Component['id']) {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/entregables/' + componenteId)
+          .get(`${baseURL()}/api/entregables/${componenteId}`)
           .then((response) => {
             if (response.data.hasOwnProperty(componenteId)) {
               this.estructura.desarrollo.catalogos.entregables[componenteId] =
@@ -673,7 +680,7 @@ export const useProjectStore = defineStore('project', {
     obtenUnidades() {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/unidades')
+          .get(`${baseURL()}/api/unidades`)
           .then((response) => {
             this.estructura.desarrollo.catalogos.unidades = response.data
             resolve(response.data)
@@ -687,7 +694,7 @@ export const useProjectStore = defineStore('project', {
     obtenMunicipios() {
       return new Promise((resolve, reject) => {
         $axios
-          .get('api/municipios' + '/' + (this.id != null ? this.id : 0))
+          .get(`${baseURL()}/api/municipios` + '/' + (this.id != null ? this.id : 0))
           .then((response) => {
             this.estructura.desarrollo.catalogos.municipios = response.data
             resolve(response.data)
@@ -905,16 +912,15 @@ export const useProjectStore = defineStore('project', {
 
       this.actualizarAportacionesComponente()
     },
-    calcularPorcentaje(cantidad: number, tope: number, $decimales: number) {
+    calcularPorcentaje(cantidad: number, tope: number, $decimales: number): number {
       const $tope = tope > 0 ? tope : 1
 
-      let porcentaje = (cantidad / $tope) * 100
+      let porcentaje: number = (cantidad / $tope) * 100
 
       if ($decimales && $decimales > 0) {
-        porcentaje = numeral(porcentaje).format('0.' + decimales($decimales))
-        porcentaje = numeral(porcentaje).value()
+        porcentaje = numeral(numeral(porcentaje).format('0.' + decimales($decimales))).value()!
       }
-      return $decimales && $decimales > 0 ? porcentaje : parseInt(porcentaje)
+      return porcentaje
     },
     actualizarAportacionesComponente() {
       this.estructura.desarrollo.componentes.pec = this.estructura.desarrollo.componentes.pec.map(
@@ -943,7 +949,7 @@ export const useProjectStore = defineStore('project', {
             (this.estructura.resumen.porcentaje.federal * $componente.total) / 100,
           )
           $componente.aporteEstatal = numberFormat(
-            (this.estructura.resumen.porcentaje.estatal * $componente.total) / 100,
+            (this.estructura.resumen.porcentaje.estatal! * $componente.total) / 100,
           )
 
           if (
@@ -959,7 +965,7 @@ export const useProjectStore = defineStore('project', {
     },
     obtenerFiscalizacion() {
       $axios
-        .get('api/fiscalizacion' + '/' + (this.id !== null ? this.id : 0))
+        .get(`${baseURL()}/api/fiscalizacion` + '/' + (this.id !== null ? this.id : 0))
         .then((response) => {
           this.estructura.resumen.millar = response.data.millar
         })
@@ -1034,7 +1040,7 @@ export const useProjectStore = defineStore('project', {
     obtenerPDF() {
       return new Promise((resolve, reject) => {
         $axios({
-          url: 'api/pdf' + '/' + (this.id !== null ? this.id : 0),
+          url: `${baseURL()}/api/pdf` + '/' + (this.id !== null ? this.id : 0),
           method: 'GET',
           responseType: 'arraybuffer',
         })

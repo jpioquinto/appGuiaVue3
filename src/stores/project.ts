@@ -178,10 +178,11 @@ export const useProjectStore = defineStore('project', {
         .get(`${baseURL()}/api/desarrollo/${this.id}`)
         .then((response) => {
           this.estructura.desarrollo.inicializado = true
-          if (response.data.hasOwnProperty('pec')) {
+          if (response.data?.pec) {
             this.estructura.desarrollo.componentes.pec = response.data.pec
           }
-          if (response.data.hasOwnProperty('pem')) {
+
+          if (response.data?.pem) {
             this.estructura.desarrollo.componentes.pem = response.data.pem
           }
         })
@@ -790,6 +791,12 @@ export const useProjectStore = defineStore('project', {
     distribucionCalculada(estatus: boolean = true) {
       this.estructura.resumen.calculado = estatus
     },
+    redistribuirMontos(estatus: boolean = true) {
+      this.estructura.resumen.redistribuir = estatus
+    },
+    actualizarComponentesResumen(listado: CatComponents) {
+      this.estructura.resumen.listado = listado
+    },
     asignarNumDecPorcentaje(numDec: number) {
       this.estructura.resumen.porcDecimales = numDec
     },
@@ -802,6 +809,7 @@ export const useProjectStore = defineStore('project', {
     },
     //actualizarAporteFederal
     asignarAporteFederal(monto: number) {
+      console.log(monto)
       this.anio && this.anio < 2018
         ? (this.estructura.resumen.distribucionV1.gTotal.federal = monto)
         : (this.estructura.resumen.distribucionV2.gTotal.federal = monto)
@@ -938,7 +946,7 @@ export const useProjectStore = defineStore('project', {
           ) {
             $componente.aporteEstatal = numberFormat($componente.total - $componente.aporteFederal)
           }
-
+          this.estructura.resumen.redistribuir = true
           return $componente
         },
       )

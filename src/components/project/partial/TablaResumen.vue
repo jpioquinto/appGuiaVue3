@@ -11,7 +11,7 @@ import FilaTotal from './FilaTotal.vue'
 import { decimales } from '@/util'
 import numeral from 'numeral'
 
-import type { Distribucion, FilasDistribucion, StateProject } from '@/types/project'
+import type { Distribucion, FilasDistribucion, Resumen, StateProject } from '@/types/project'
 import type { CatComponents } from '@/types/component'
 import { keyof } from 'zod'
 
@@ -44,8 +44,8 @@ export default defineComponent({
 
     return {
       aportaciones: reactive<FilasDistribucion>(project.obtenerDistribucion),
-      porcDecimales: ref<number>(project.anio === 2020 ? 2 : 8),
       calculado: ref<boolean>(project.estructura.resumen.calculado),
+      porcDecimales: ref<number>(project.anio === 2020 ? 2 : 8),
       resetAportacion: ref<boolean>(false),
       project,
       config,
@@ -66,43 +66,44 @@ export default defineComponent({
     distribuirPorcentaje(porcentajes: any) {
       this.$emit('actualizar', porcentajes)
     },
-    distribuirEnFilas(filas: FilasDistribucion, componentes: CatComponents): FilasDistribucion {
+    calcularAportaciones(componentes: CatComponents): FilasDistribucion {
+      const recurso = this.project.obtenerDistribucion
       componentes.forEach((componente) => {
-        if (!filas.total.estatal) {
-          filas.total.estatal = 0
+        if (!recurso.total.estatal) {
+          recurso.total.estatal = 0
         }
 
-        filas.total.federal += +componente?.aporteFederal! || 0
+        recurso.total.federal += numeral(componente?.aporteFederal).value() || 0
 
-        filas.total.estatal += +componente?.aporteEstatal! || 0
+        recurso.total.estatal += numeral(componente?.aporteEstatal).value() || 0
 
-        filas.total.total += +componente?.total! > 0 ? +componente?.total! : 0
+        recurso.total.total += numeral(componente?.total).value() || 0
       })
-      filas.millar.federal = filas.millar.total =
+      recurso.millar.federal = recurso.millar.total =
         !this.project.estructura.resumen.millar || this.project.estructura.resumen.millar === 0
           ? numeral(
               numeral(
-                this.calcularFiscalizacion(filas.total.federal, filas.total.federal / 1000),
+                this.calcularFiscalizacion(recurso.total.federal, recurso.total.federal / 1000),
               ).format('0.00'),
             ).value()!
           : this.project.estructura.resumen.millar
 
-      filas.total.federal = numeral(numeral(filas.total.federal).format('0.00')).value()!
-      filas.total.estatal = numeral(numeral(filas.total.estatal).format('0.00')).value()
-      filas.total.total = numeral(numeral(filas.total.total).format('0.00')).value()!
+      recurso.total.federal = numeral(numeral(recurso.total.federal).format('0.00')).value()!
+      recurso.total.estatal = numeral(numeral(recurso.total.estatal).format('0.00')).value()
+      recurso.total.total = numeral(numeral(recurso.total.total).format('0.00')).value()!
 
-      filas.gTotal.federal = filas.total.federal + filas.millar.federal
-      filas.gTotal.estatal = filas.total.estatal
-      filas.gTotal.total = filas.total.federal + filas.millar.federal + filas.total.estatal!
+      recurso.gTotal.federal = recurso.total.federal + recurso.millar.federal
+      recurso.gTotal.estatal = recurso.total.estatal
+      recurso.gTotal.total = recurso.total.federal + recurso.millar.federal + recurso.total.estatal!
 
-      filas.gTotal.federal = numeral(numeral(filas.gTotal.federal).format('0.00')).value()!
-      filas.gTotal.total = numeral(numeral(filas.gTotal.total).format('0.00')).value()!
+      recurso.gTotal.federal = numeral(numeral(recurso.gTotal.federal).format('0.00')).value()!
+      recurso.gTotal.total = numeral(numeral(recurso.gTotal.total).format('0.00')).value()!
 
-      filas.porcentaje = this.distribuirPorcentajes(filas)
+      recurso.porcentaje = this.distribuirPorcentajes(recurso)
 
       this.project.distribucionCalculada((this.calculado = true))
 
-      return filas
+      return recurso
     },
     calcularFiscalizacion(subTotalFederal: number, fiscalizacion: number): number {
       const nuevaFiscalizacion: number = (subTotalFederal + fiscalizacion) / 1000
@@ -151,45 +152,12 @@ export default defineComponent({
       }
       return false
     },
-    resetAportaciones(): void {
-      this.aportaciones.total.estatal = 0
-      this.aportaciones.total.federal = 0
-      this.aportaciones.total.total = 0
-
-      this.aportaciones.gTotal.estatal = 0
-      this.aportaciones.gTotal.federal = 0
-      this.aportaciones.gTotal.total = 0
-
-      this.aportaciones.millar.federal = 0
-      this.aportaciones.millar.total = 0
-
-      this.aportaciones.porcentaje.estatal = 0
-      this.aportaciones.porcentaje.federal = 0
-
-      this.project.distribucionCalculada((this.calculado = false))
-      this.resetAportacion = true
-    },
-    inicializarDependencias(): Promise<number> {
-      const me = this
-
-      return new Promise((resolve, reject) => {
-        me.distribuirEnFilas(me.aportaciones, [...me.componentes])
-        resolve(0)
-      })
-    },
-    async inicia(): Promise<void> {
-      const me = this
-      await this.inicializarDependencias().then(() => {})
-    },
   },
   beforeMount() {
-    if (!this.project.estructura.resumen.millar && this.project.anio! < 2019) {
-      this.project.obtenerFiscalizacion()
+    if (!this.calculado && this.componentes.length > 0) {
+      console.log('Calcular aportaciones...')
+      this.aportaciones = this.calcularAportaciones(this.componentes)
     }
-    this.resetAportaciones()
-  },
-  beforeUpdate() {
-    this.resetAportacion ? this.inicia() : undefined
   },
 })
 </script>

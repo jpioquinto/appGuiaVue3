@@ -58,7 +58,7 @@ const router = createRouter({
       component: Programa,
     },
     {
-      path: '/resumen_financiero',
+      path: '/resumen-financiero',
       name: 'resumen',
       component: Resumen,
     },

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, defineComponent } from 'vue'
 
 import type { ProgramComponents, Component, ProgramActivities, Components } from '@/types/component'
 import type { ComponentHomologo, ComponentsDev } from '@/types/project'
@@ -10,7 +10,7 @@ import Checkbox from './partial/Checkbox.vue'
 import { clone } from '@/util'
 import type { Activity } from '@/types/activity'
 
-export default {
+export default defineComponent({
   components: {
     'v-runtime-template': VRuntimeTemplate,
     checkbox: Checkbox,
@@ -29,7 +29,7 @@ export default {
 
     const homologos = reactive<ComponentHomologo>(project.homologos)
 
-    const programa = reactive<ProgramComponents>({})
+    const programa = ref<ProgramComponents>({})
 
     const indexRow = ref<number>(0)
 
@@ -244,7 +244,7 @@ export default {
     this.project.inicializarPrograma()
     this.project.actualizarCapturaPrograma()
   },
-}
+})
 </script>
 <template>
   <div class="content">
@@ -303,9 +303,9 @@ export default {
               </th>
             </tr>
           </thead>
-          <tbody v-html="filas"></tbody>
+          <!--tbody v-html="filas"></tbody-->
           <!--VRuntimeTemplate :template="filas" /-->
-          <!--v-runtime-template :template="filas"></v-runtime-template-->
+          <v-runtime-template :template="filas"></v-runtime-template>
         </table>
       </div>
     </div>

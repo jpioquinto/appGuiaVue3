@@ -78,6 +78,9 @@ export default {
     }
     return state.estructura.resumen.distribucionV2
   },
+  obtenerRedistribuirMontos(state: StateProject) {
+    return state.estructura.resumen.redistribuir
+  },
   obtenerAlMillar(state: StateProject) {
     return state.estructura.resumen.alMillar / 1000
   },

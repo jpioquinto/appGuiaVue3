@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, inject, type Ref } from 'vue'
 
 import type { FilasDistribucion } from '@/types/project'
+import type { Distribute } from '@/types/partialProps'
 import { useProjectStore } from '@/stores/project'
 import InputNumeric from './InputNumeric.vue'
 import { decimales } from '@/util'
@@ -14,6 +15,8 @@ const project = useProjectStore()
 const decCantidad = ref<number>(2)
 
 const $activar = ref<boolean>(false)
+
+const { redistribuirMontos } = inject<Distribute>('redistribuir')
 
 const gTotal = computed(() => numeral(props.distribucion.gTotal.total).format('$0,0.00'))
 
@@ -60,6 +63,10 @@ const actualizar = ($cantidad: number) => {
   /*console.log("Llamada a actualizar cantidad: " + $cantidad);
         props.distribucion.gTotal.federal = $cantidad;*/
   project.asignarAporteFederal($cantidad)
+
+  setTimeout(() => {
+    redistribuirMontos(project.obtenerRedistribuirMontos)
+  }, 600)
 }
 </script>
 <template>

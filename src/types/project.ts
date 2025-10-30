@@ -104,6 +104,7 @@ export type FilasDistribucion = {
 }
 
 export type Resumen = Inicializado & {
+  redistribuir: boolean
   calculado: boolean
   distribucionV1: FilasDistribucion
   distribucionV2: FilasDistribucion

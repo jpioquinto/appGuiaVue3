@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+
+import { useRouter } from 'vue-router'
+import { AxiosError } from 'axios'
 import $axios from '@/util/axios'
-import { clone, baseURL } from '@/util'
+
 import gobierno from '@/assets/images/logos/gobierno-mx.svg'
+import { baseURL } from '@/util'
 
 import AccionGuardar from './partial/AccionGuardar.vue'
 import AccionDescarga from './partial/AccionDescarga.vue'
 
-import { useRouter } from 'vue-router'
-import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
-import type { Activities } from '@/types/activity'
 import type { Components } from '@/types/component'
+import { useProjectStore } from '@/stores/project'
+import { useConfigStore } from '@/stores/config'
+import { notify } from '@kyvg/vue3-notification'
 
 defineProps(['logo', 'nickname'])
 
@@ -153,10 +156,16 @@ const guardar = () => {
   $axios
     .post(`${baseURL()}/api/save`, datos)
     .then((response) => {
-      console.log(response)
+      if (response.data.solicitud) {
+        notify({ group: 'auth', type: 'success', text: response.data.message })
+      }
     })
-    .catch((error) => {
-      console.log(error)
+    .catch((error: AxiosError | Error | unknown) => {
+      let message = (error as Error).message
+      if (error instanceof AxiosError) {
+        message = error?.response?.data?.message || message
+      }
+      notify({ group: 'auth', type: 'error', title: '¡Error!', text: message })
     })
 }
 </script>

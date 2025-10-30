@@ -101,7 +101,7 @@ export const useConfigStore = defineStore('config', {
       this.configAxios.interceptor = $axios.interceptors.request.use(
         (config) => {
           me.loader.isLoading = true
-          console.log(config)
+          //console.log(config)
           return config
         },
         (error) => {

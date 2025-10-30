@@ -83,6 +83,7 @@ export default {
     },
     resumen: {
       inicializado: false,
+      redistribuir: false,
       capturado: false,
       calculado: false,
       distribucionV1: {

@@ -2,6 +2,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useConfigStore } from '@/stores/config'
 import { notify } from '@kyvg/vue3-notification'
+import { AxiosError } from 'axios'
 import $axios from '@/util/axios'
 import { baseURL } from '@/util'
 import router from '@/router'
@@ -162,13 +163,12 @@ const loginUser = () => {
   })
 }
 
-const handleErrorsLogin = () => {
-  notify({
-    group: 'auth',
-    type: 'error',
-    title: '¡Error!',
-    text: 'error.message',
-  })
+const handleErrorsLogin = (error: AxiosError | Error | unknown) => {
+  let message = (error as Error).message
+  if (error instanceof AxiosError) {
+    message = error?.response?.data?.message || message
+  }
+  notify({ group: 'auth', type: 'error', title: '¡Error!', text: message })
 }
 </script>
 <template>

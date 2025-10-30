@@ -189,14 +189,25 @@ const tipoRecurso = (value: number) => {
 
 const entradaNumerica = (event: KeyboardEvent) => {
   if (event.target instanceof HTMLInputElement) {
+    if (event.key === 'Enter' || isKeySpecial(event.key) || isKeyCtrl(event)) {
+      return
+    }
     if (
-      event.key !== 'Enter' &&
       event.key !== '.' &&
-      !isKeySpecial(event.key) &&
-      !isKeyCtrl(event) &&
-      !isNumericPositive(removeFormatNumeric(mascara[event.target.name as keyof typeof mascara]))
+      (!isNumericPositive(event.key) ||
+        !isNumericPositive(
+          removeFormatNumeric(mascara[event.target.name as keyof typeof mascara] + event.key),
+        ))
     ) {
-      event.preventDefault()
+      return event.preventDefault()
+    }
+    if (
+      event.key === '.' &&
+      removeFormatNumeric(mascara[event.target.name as keyof typeof mascara])
+        .split('')
+        .includes('.')
+    ) {
+      return event.preventDefault()
     }
   }
 }
@@ -550,7 +561,7 @@ onMounted(() => {
                   type="text"
                   v-model="mascara.cantidad"
                   name="cantidad"
-                  @keypress="entradaNumerica"
+                  @keydown="entradaNumerica"
                   @keyup="verificarCapturaNumerica"
                   @change="formatearCantidades"
                 />

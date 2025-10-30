@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, defineComponent, provide } from 'vue'
 import { useProjectStore } from '@/stores/project'
 import { useConfigStore } from '@/stores/config'
 import { makeHash } from '@/util'
@@ -11,10 +11,12 @@ import {
   type StateProject,
   type ComponentsDev,
   type Resumen,
+  type FilasDistribucion,
 } from '@/types/project'
 import type { CatComponent, CatComponents, Component, Components } from '@/types/component'
+import { keyof } from 'zod'
 
-export default {
+export default defineComponent({
   components: {
     TablaResumen: TablaResumen,
   },
@@ -22,6 +24,15 @@ export default {
     const config = useConfigStore()
 
     const project = useProjectStore()
+
+    const redistribuir = ref<Resumen['capturado']>(project.obtenerRedistribuirMontos)
+
+    provide('redistribuir', {
+      redistribuir,
+      redistribuirMontos: (newValue: boolean) => {
+        redistribuir.value = newValue
+      },
+    })
 
     return {
       componentes: reactive<{ pec: CatComponents; pem: CatComponents }>({ pec: [], pem: [] }),
@@ -31,18 +42,32 @@ export default {
       vertiente: ref<StateProject['vertiente']>(project.vertiente),
       porcDecimales: ref<number>(project.anio === 2020 ? 2 : 8),
       homologos: reactive<ComponentHomologo>(project.homologos),
-      keyTabla: ref<string>(makeHash()),
-      anio: ref<number>(project.anio!),
+      anio: ref<number>(project.anio! || 0),
+      keyTabla: ref<string>(makeHash(6)),
       observaciones: ref<string>(''),
+      redistribuir,
       project,
       config,
     }
   },
   watch: {
-    capturado(nuevoEstatus, viejoEstatus) {
-      if (nuevoEstatus) {
+    redistribuir(current, prev) {
+      //&& this.listado.length == 0
+      if (current) {
+        this.project.actualizarComponentesResumen(
+          (this.listado = this.aportacionComponentes(this.asignarMontoComponentes())),
+        )
+        this.keyTabla = makeHash(6)
+      }
+    },
+    capturado(current, prev) {
+      //&& this.listado.length == 0
+      if (current) {
         console.log('resumen...componentes obtenidos :)')
-        this.listado = this.asignarMontoComponentes()
+        this.project.actualizarComponentesResumen(
+          (this.listado = this.aportacionComponentes(this.asignarMontoComponentes())),
+        )
+        this.keyTabla = makeHash(6)
       }
     },
   },
@@ -55,13 +80,54 @@ export default {
     },
   },
   methods: {
-    asignarMontoComponentes() {
+    actualizarDistribucion() {},
+    distribuirRecursoComponentes(componentes: CatComponents): CatComponents {
+      let porcentajeFederal = this.project.estructura.resumen.porcentaje.federal / 100
+      let porcentajeEstatal = this.project.estructura.resumen.porcentaje.estatal! / 100
+
+      return componentes.map((componente) => {
+        let total = numeral(componente.total).value()! > 0 ? numeral(componente.total).value() : 0
+        componente.aporteFederal = numeral(total! * porcentajeFederal).format('$0,0.00')
+        componente.aporteEstatal = numeral(total! * porcentajeEstatal).format('$0,0.00')
+        return componente
+      })
+    },
+    estaDistribuidoComponente(componente: CatComponent): boolean {
+      let montos: number = numeral(componente.aporteFederal).value()!
+      montos += numeral(componente?.aporteEstatal).value()!
+
+      /*console.log(
+        `id: ${componente.nombre} :: ${numeral(montos).value()} == ${numeral(numeral(componente.total).format('0.00')).value()}`,
+      )*/
+      return (
+        numeral(numeral(montos).format('0.00')).value() ==
+        numeral(numeral(componente.total).format('0.00')).value()
+      )
+    },
+    recursoComponentesDistribuido(listado: CatComponents): boolean {
+      let estaDistribuido = true,
+        comprobado = false
+      listado.forEach((componente) => {
+        if (!this.estaDistribuidoComponente(componente)) {
+          estaDistribuido = false
+        }
+        comprobado = true
+      })
+      return comprobado ? estaDistribuido : false
+    },
+    aportacionComponentes(listado: CatComponents): CatComponents {
+      if (this.recursoComponentesDistribuido(listado)) {
+        return listado
+      }
+      return this.distribuirRecursoComponentes(listado)
+    },
+    asignarMontoComponentes(): CatComponents {
       let $listadoComponentes
 
       if (this.vertiente !== '1,2') {
         $listadoComponentes = this.obtenerMontosComponente(
-          this.vertiente == '1' ? [...this.componentes.pec] : [...this.componentes.pem],
-          this.vertiente == '1' ? [...this.desarrollo.pec] : [...this.desarrollo.pem],
+          +this.vertiente! == 1 ? [...this.componentes.pec] : [...this.componentes.pem],
+          +this.vertiente! == 1 ? [...this.desarrollo.pec] : [...this.desarrollo.pem],
         )
         return $listadoComponentes
       }
@@ -95,7 +161,7 @@ export default {
       return homologado
     },
     obtenerIdHomologo(idComponente: Component['id']): Component['id'] {
-      return this.homologos.hasOwnProperty(idComponente)
+      return this.homologos[idComponente as keyof typeof this.homologos]
         ? this.homologos[idComponente].id
         : idComponente
     },
@@ -106,27 +172,25 @@ export default {
 
         const componentesPEM = this.project.listadoComponentes(2)
         this.componentes.pem = componentesPEM?.datos || []
-
-        return this.componentes
       }
 
       const componentes = this.project.listadoComponentes(+vertiente!)
 
-      return (this.componentes[Number(vertiente) === 1 ? 'pec' : 'pem'] = componentes?.datos || [])
+      this.componentes[Number(vertiente) === 1 ? 'pec' : 'pem'] = componentes?.datos || []
     },
     inicializarComponentes(vertiente: StateProject['vertiente']) {
       if (this.project.listadoComponentes(+vertiente!) == null) {
         return this.project.obtenerComponentes({ vertiente }).then((response) => {
           this.setComponentes(vertiente)
-          this.capturado = true
+          this.project.actualizarCapturaResumen((this.capturado = true))
         })
       }
       this.setComponentes(vertiente)
-      this.capturado = true
+      this.project.actualizarCapturaResumen((this.capturado = true))
     },
     homologarNombreComponente(componentes: CatComponents): CatComponents {
       return componentes.map((componente) => {
-        if (!this.homologos.hasOwnProperty(componente.componentes_id)) {
+        if (!this.homologos[componente.componentes_id as keyof typeof this.homologos]) {
           return componente
         }
         componente.nombre = this.homologos[componente.componentes_id].nombre
@@ -136,7 +200,7 @@ export default {
     obtenerComponentesRestantes(componentes: CatComponents): CatComponents {
       return componentes.filter((componente) => !this.estaHomologado(componente.componentes_id))
     },
-    obtenerMontos(componente: CatComponent, desarrollo: Components) {
+    obtenerMontos(componente: CatComponent, desarrollo: Components): CatComponent {
       if (!this.estaHomologado(componente.componentes_id) && this.anio <= 2020) {
         componente.total =
           componente?.total && numeral(componente.total).value()
@@ -158,7 +222,7 @@ export default {
         return componente
       }
 
-      if (!this.homologos.hasOwnProperty(componente.componentes_id)) {
+      if (!this.homologos[componente.componentes_id as keyof typeof this.homologos]) {
         componente.aporteFederal = this.obtenerAportacionFederal(
           desarrollo,
           componente.componentes_id,
@@ -228,60 +292,25 @@ export default {
 
       return componentes
     },
-    actualizarDistribucion(_porcentajes: never) {
-      /*console.log(porcentajes);
-                this.distribuciones.filas.porcentaje.federal = porcentajes.federal;
-                this.distribuciones.filas.porcentaje.estatal = porcentajes.estatal;
-                this.distribuciones.filas.porcentaje.total = porcentajes.total;
-
-
-                this.distribuciones.filas.gTotal.federal = this.distribuciones.filas.gTotal.total * (porcentajes.federal/100);
-                this.distribuciones.filas.gTotal.estatal = this.distribuciones.filas.gTotal.total - this.distribuciones.filas.gTotal.federal;
-                this.distribuciones.filas.millar.federal =  this.distribuciones.filas.millar.total = this.distribuciones.filas.gTotal.federal*this.project.obtenerAlMillar;
-
-                this.distribuciones.filas.total.federal = this.distribuciones.filas.gTotal.federal - this.distribuciones.filas.millar.federal;
-
-                if (this.distribuciones.filas.total.federal>this.distribuciones.filas.total.total) {
-                    this.distribuciones.filas.total.federal = 0;
-                }
-                this.distribuciones.filas.total.estatal = this.distribuciones.filas.total.total - this.distribuciones.filas.total.federal;
-                if (this.distribuciones.filas.total.estatal<0) {
-                    this.distribuciones.filas.total.estatal = 0;
-                }
-                if (!this.distribuciones.calculado) {
-                    this.project.distribucionCalculada(this.distribuciones.calculado = true);
-                }*/
-    },
-    inicializarDependencias() {
-      const me = this
-
-      return new Promise((resolve, reject) => {
-        if (!me.project.estructura.desarrollo.inicializado && me.project.id) {
-          me.project.obtenerDesarrollo()
-        }
-
-        me.inicializarComponentes(me.vertiente)
-
-        resolve(0)
-      })
-    },
-    async inicia() {
-      const me = this
-      await this.inicializarDependencias().then(() => {
-        me.project.inicializarResumen()
-        me.project.actualizarCapturaResumen()
-
-        me.listado = me.asignarMontoComponentes()
-      })
-    },
   },
   beforeMount() {
-    this.inicia()
+    if (!this.project.estructura.resumen.millar && this.project.anio! < 2019) {
+      this.project.obtenerFiscalizacion()
+    }
+
+    if (!this.project.estructura.desarrollo.inicializado && this.project.id) {
+      this.project.obtenerDesarrollo()
+    }
+
+    this.inicializarComponentes(this.vertiente)
+
+    this.project.inicializarResumen()
   },
   mounted() {
+    console.log('mounted resumen')
     this.project.asignarNumDecPorcentaje(this.porcDecimales)
   },
-}
+})
 </script>
 <template>
   <div class="content">

@@ -1,3 +1,4 @@
+import type { Ref } from 'vue'
 import type { SubComponente } from './activity'
 import type { Component, OfficeAcquis } from './component'
 import type { Distribucion, StateProject } from './project'
@@ -42,4 +43,9 @@ export type ChartSerie = {
   puntaje: number
   estimacion: number
   modelo: number
+}
+
+export default interface Distribute {
+  redistribuir: Ref<boolean>
+  redistribuirMontos: (newValue: boolean) => void
 }

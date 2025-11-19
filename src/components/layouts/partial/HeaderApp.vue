@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { AxiosError } from 'axios'
 import $axios from '@/util/axios'
 
-import gobierno from '@/assets/images/logos/gobierno-mx.svg'
+import gobierno from '@/assets/images/logos/gob-mx.png'
 import { baseURL } from '@/util'
 
 import AccionGuardar from './AccionGuardar.vue'
@@ -170,12 +170,13 @@ const guardar = () => {
 }
 </script>
 <template>
-  <header class="hero is-primary">
+  <header class="hero is-sedatu-1">
     <div class="hero-head">
       <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-          <img class="navbar-brand-logo" :src="gobierno" alt="SEDATU" />
-          <a class="navbar-item"> </a>
+          <a class="navbar-item">
+            <img class="navbar-brand-logo" :src="gobierno" alt="SEDATU" />
+          </a>
           <a class="navbar-item is-tab is-hidden-mobile1">
             <span class="icon is-medium"><i class="fa fa-home"></i></span>Inicio
           </a>

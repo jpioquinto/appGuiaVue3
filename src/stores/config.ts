@@ -12,9 +12,10 @@ export const useConfigStore = defineStore('config', {
       return clases[$posc] ? clases[$posc] : ''
     }
     return {
-      acciones: {},
       sidebar: [] as Steps,
       nickname: 'user',
+      acciones: {},
+      rol: null,
       token: localStorage.getItem('authToken') || null,
       layout: 'ContentLogin',
       customToolbar: {
@@ -55,10 +56,11 @@ export const useConfigStore = defineStore('config', {
     },
   },
   actions: {
-    asignarToken({ token, nickname, acciones }: Auth) {
-      this.token = token
+    asignarToken({ token, nickname, rol, acciones }: Auth) {
       this.nickname = nickname
       this.acciones = acciones
+      this.token = token
+      this.rol = rol
     },
     asignarLayout($layout: string) {
       this.layout = $layout

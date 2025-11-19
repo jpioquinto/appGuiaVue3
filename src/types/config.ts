@@ -29,6 +29,7 @@ export type StateConfig = {
   sidebar: Steps
   nickname: string
   token: null | string
+  rol: null | string
   layout: string
   customToolbar: CustomToolbar
   configAxios: ConfigAxios
@@ -37,8 +38,4 @@ export type StateConfig = {
   isFullPage: boolean
 }
 
-export type Auth = {
-  token: string
-  nickname: string
-  acciones: object
-}
+export type Auth = Pick<StateConfig, 'nickname' | 'acciones' | 'token' | 'rol'>

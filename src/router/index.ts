@@ -14,6 +14,7 @@ import Anexos from '../components/project/AnexosActividad.vue'
 import Inicio from '../components/project/Inicio.vue'
 import Logout from '../components/login/LogoutApp.vue'
 import Home from '@/views/Home.vue'
+import Dashboard from '@/components/admin/Dashboard.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -27,6 +28,12 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: () => import('@/components/login/FormLogin.vue'),
     meta: { layout: 'auth' },
+  },
+  {
+    path: '/admin/proyectos',
+    name: 'admin-proyectos',
+    component: Dashboard,
+    meta: { layout: 'admin', requiresAuth: true },
   },
   {
     path: '/inicio',
@@ -97,7 +104,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 

@@ -36,11 +36,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <HeaderApp
-    :logo="logoHeader"
-    :nickname="config.nickname"
-    v-if="config.layout != 'ContentLogin'"
-  />
+  <HeaderApp :logo="logoHeader" :nickname="config.nickname" />
   <div class="section">
     <div class="columns is-mobile is-desktop">
       <Menu :elementos="menu">

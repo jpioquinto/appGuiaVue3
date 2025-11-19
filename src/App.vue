@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 
 import DefaultLayout from './components/layouts/DefaultLayout.vue'
 import ProjectLayout from './components/layouts/ProjectLayout.vue'
+import AdminLayout from './components/layouts/AdminLayout.vue'
 import AuthLayout from './components/layouts/AuthLayout.vue'
 
 const config = useConfigStore()
@@ -13,8 +14,9 @@ const route = useRoute()
 
 const layoutMap = {
   default: DefaultLayout,
-  auth: AuthLayout,
   project: ProjectLayout,
+  admin: AdminLayout,
+  auth: AuthLayout,
 }
 
 let classLoading = ref(config.loader.classLoading)

@@ -145,6 +145,7 @@ const loginUser = () => {
         config.asignarToken({
           token: response.data.access_token,
           nickname: response.data.user.nickname,
+          rol: response.data.user.rol,
           acciones: response.data.user.acciones,
         })
 
@@ -155,9 +156,12 @@ const loginUser = () => {
         })
 
         setTimeout(() => {
-          config.asignarLayout('ContentProject')
-          router.push({ name: 'inicio' })
-        }, 1200)
+          if (response.data.user.rol === 'admin') {
+            router.push('/admin/proyectos')
+            return
+          }
+          router.push('/inicio')
+        }, 1000)
       })
       .catch(handleErrorsLogin)
   })

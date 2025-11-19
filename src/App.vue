@@ -1,62 +1,46 @@
-<script lang="ts">
-import { computed, ref } from 'vue'
-
-import HeaderGuia from './components/layouts/HeaderApp.vue'
+<script setup lang="ts">
+import { computed, ref, onMounted } from 'vue'
 import { useConfigStore } from '@/stores/config'
+import { useRoute } from 'vue-router'
 
-import ContentProject from './components/layouts/ContentProject.vue'
-import ContentLogin from './components/layouts/ContentLogin.vue'
-import AboutView from './views/AboutView.vue'
+import DefaultLayout from './components/layouts/DefaultLayout.vue'
+import ProjectLayout from './components/layouts/ProjectLayout.vue'
+import AuthLayout from './components/layouts/AuthLayout.vue'
 
-export default {
-  components: {
-    AboutView,
-    HeaderGuia,
-    ContentLogin,
-    ContentProject,
-  },
+const config = useConfigStore()
 
-  setup() {
-    const config = useConfigStore()
+const route = useRoute()
 
-    let classLoading = ref(config.loader.classLoading)
-
-    const logoHeader = computed(() => {
-      return ''
-    })
-
-    const classActive = computed(() => {
-      if (!config.loader.isLoading) {
-        return ''
-      }
-      return 'is-active'
-    })
-
-    return {
-      logoHeader,
-      config,
-      classActive,
-      classLoading,
-    }
-  },
-
-  mounted() {
-    this.config.habilitaInterceptor()
-  },
+const layoutMap = {
+  default: DefaultLayout,
+  auth: AuthLayout,
+  project: ProjectLayout,
 }
+
+let classLoading = ref(config.loader.classLoading)
+
+const classActive = computed(() => {
+  if (!config.loader.isLoading) {
+    return ''
+  }
+  return 'is-active'
+})
+
+const currentLayout = computed(() => {
+  const layout = (route.meta?.layout as keyof typeof layoutMap) || 'default'
+  return layoutMap[layout] || DefaultLayout
+})
+
+onMounted(() => {
+  config.habilitaInterceptor()
+})
 </script>
 
 <template>
   <div class="app">
-    <HeaderGuia
-      :logo="logoHeader"
-      :nickname="config.nickname"
-      v-if="config.layout != 'ContentLogin'"
-    />
-    <div :class="config.layout != 'ContentLogin' ? 'section' : ''">
-      Componente dinámico aquí:
-      <component :is="config.layout"></component>
-    </div>
+    <component :is="currentLayout">
+      <router-view />
+    </component>
     <!--AboutView /-->
     <notifications group="auth" position="bottom right" />
 

@@ -15,7 +15,7 @@ export const useConfigStore = defineStore('config', {
       acciones: {},
       sidebar: [] as Steps,
       nickname: 'user',
-      token: localStorage.getItem('access_token') || null,
+      token: localStorage.getItem('authToken') || null,
       layout: 'ContentLogin',
       customToolbar: {
         modules: {
@@ -69,7 +69,7 @@ export const useConfigStore = defineStore('config', {
           $axios
             .post(`${baseURL()}/api/logout`)
             .then((response) => {
-              localStorage.removeItem('access_token')
+              localStorage.removeItem('authToken')
               this.token = null
               delete $axios.defaults.headers.common.Authorization
 
@@ -77,7 +77,7 @@ export const useConfigStore = defineStore('config', {
               /*setTimeout(function(){ location.reload(); }, 700);*/
             })
             .catch((error) => {
-              localStorage.removeItem('access_token')
+              localStorage.removeItem('authToken')
               this.token = null
 
               reject(error)

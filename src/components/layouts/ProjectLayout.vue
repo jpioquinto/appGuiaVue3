@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 
-import HeaderGuia from './partial/HeaderApp.vue'
+import HeaderApp from './partial/HeaderApp.vue'
 import { useConfigStore } from '@/stores/config'
 import Menu from './sidebar/MenuSideBar.vue'
 
@@ -36,7 +36,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <HeaderGuia
+  <HeaderApp
     :logo="logoHeader"
     :nickname="config.nickname"
     v-if="config.layout != 'ContentLogin'"

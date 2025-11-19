@@ -153,7 +153,6 @@ const guardar = () => {
   }
 
   console.log(datos)
-  //return
   $axios
     .post(`${baseURL()}/api/save`, datos)
     .then((response) => {

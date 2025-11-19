@@ -1,6 +1,6 @@
+import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import { createWebHistory, createRouter } from 'vue-router'
 
-import ContentLogin from '@/components/layouts/ContentLogin.vue'
 import ContentProject from '@/components/layouts/ContentProject.vue'
 import Introduccion from '../components/project/Introduccion.vue'
 import Antecedente from '../components/project/AntecedenteInstitucion.vue'
@@ -13,71 +13,109 @@ import Resultados from '../components/project/Resultados.vue'
 import Anexos from '../components/project/AnexosActividad.vue'
 import Inicio from '../components/project/Inicio.vue'
 import Logout from '../components/login/LogoutApp.vue'
+import Home from '@/views/Home.vue'
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    component: Home,
+    meta: { layout: 'default' },
+    name: 'home',
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/components/login/FormLogin.vue'),
+    meta: { layout: 'auth' },
+  },
+  {
+    path: '/inicio',
+    name: 'inicio',
+    component: Inicio,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/introduccion',
+    name: 'introduccion',
+    component: Introduccion,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/antecedentes',
+    name: 'antecedentes',
+    component: Antecedente,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/situacion',
+    name: 'situacion',
+    component: Situacion,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/objetivo',
+    name: 'objetivo',
+    component: Objetivo,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/desarrollo',
+    name: 'desarrollo',
+    component: Desarrollo,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/programa',
+    name: 'programa',
+    component: Programa,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/resumen-financiero',
+    name: 'resumen',
+    component: Resumen,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/resultados',
+    name: 'resultados',
+    component: Resultados,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/anexos',
+    name: 'anexos',
+    component: Anexos,
+    meta: { layout: 'project', requiresAuth: true },
+  },
+  {
+    path: '/logout',
+    name: 'logout',
+    component: Logout,
+    meta: { layout: 'auth', requiresAuth: true },
+  },
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/components/layouts/ContentLogin.vue'),
-    },
-    {
-      path: '/inicio',
-      name: 'inicio',
-      component: Inicio,
-    },
-    {
-      path: '/introduccion',
-      name: 'introduccion',
-      component: Introduccion,
-    },
-    {
-      path: '/antecedentes',
-      name: 'antecedentes',
-      component: Antecedente,
-    },
-    {
-      path: '/situacion',
-      name: 'situacion',
-      component: Situacion,
-    },
-    {
-      path: '/objetivo',
-      name: 'objetivo',
-      component: Objetivo,
-    },
-    {
-      path: '/desarrollo',
-      name: 'desarrollo',
-      component: Desarrollo,
-    },
-    {
-      path: '/programa',
-      name: 'programa',
-      component: Programa,
-    },
-    {
-      path: '/resumen-financiero',
-      name: 'resumen',
-      component: Resumen,
-    },
-    {
-      path: '/resultados',
-      name: 'resultados',
-      component: Resultados,
-    },
-    {
-      path: '/anexos',
-      name: 'anexos',
-      component: Anexos,
-    },
-    {
-      path: '/logout',
-      name: 'logout',
-      component: Logout,
-    },
-  ],
+  routes,
 })
+
+router.beforeEach(
+  (
+    to: RouteLocationNormalized,
+    _from: RouteLocationNormalized,
+    next: NavigationGuardNext,
+  ): void => {
+    const requiresAuth = (to.meta.requiresAuth as boolean) ?? false
+    const isAuthenticated = !!localStorage.getItem('authToken')
+
+    if (requiresAuth && !isAuthenticated) {
+      next('/login')
+    } else {
+      next()
+    }
+  },
+)
 
 export default router

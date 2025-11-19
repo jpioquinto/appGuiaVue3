@@ -141,7 +141,7 @@ const loginUser = () => {
       .post(`${baseURL()}/api/login`, $params)
       .then((response) => {
         $axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.access_token
-        localStorage.setItem('access_token', response.data.access_token)
+        localStorage.setItem('authToken', response.data.access_token)
         config.asignarToken({
           token: response.data.access_token,
           nickname: response.data.user.nickname,

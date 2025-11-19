@@ -1,8 +1,18 @@
 $primary-marron: #b38e5d !important;
+$sedatu-1: #611232 !important;
 
 .pageloader {
   background: rgba(45, 46, 47, 0.8) !important;
 }
+.is-sedatu-1 {
+  background-color: $sedatu-1;
+  border-color: $sedatu-1;
+  color: #ffffff !important;
+  a {
+    color: #ffffff !important;
+  }
+}
+
 .titulo {
   display: flex;
   justify-content: flex-start;

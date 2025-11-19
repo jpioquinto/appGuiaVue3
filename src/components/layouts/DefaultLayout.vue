@@ -5,7 +5,7 @@ import FooterApp from './partial/FooterDefault.vue'
 <template>
   <div class="default-layout">
     <HeaderApp />
-    <main>
+    <main class="container">
       <router-view />
     </main>
     <FooterApp />

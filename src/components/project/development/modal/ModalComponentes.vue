@@ -4,7 +4,7 @@ import { computed, ref, reactive, onBeforeMount, onMounted } from 'vue'
 import type { CatComponents, Component, Components } from '@/types/component'
 import type { ComponentModalProps } from '@/types/componentProps'
 import type { CatalogComponents } from '@/types/project'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 const props = defineProps<ComponentModalProps>()
 

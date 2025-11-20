@@ -4,7 +4,7 @@ import { computed, ref, reactive, onBeforeMount } from 'vue'
 import ModalObjetivo from './modal/ModalObjetivo.vue'
 
 import type { ObjectiveComponentProps } from '@/types/componentProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import { useConfigStore } from '@/stores/config'
 
 const config = useConfigStore()

@@ -3,7 +3,7 @@ import { ref, computed, inject, type Ref } from 'vue'
 
 import type { FilasDistribucion } from '@/types/project'
 import type { Distribute } from '@/types/partialProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import InputNumeric from './InputNumeric.vue'
 import { decimales } from '@/util'
 import numeral from 'numeral'

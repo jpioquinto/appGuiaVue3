@@ -5,7 +5,7 @@ import Anexo from './Anexo.vue'
 
 //import { useConfigStore } from '@/stores/config';
 import type { RemoveAnexo } from '@/types/component'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type { Anexos } from '@/types/activity'
 
 //const config = useConfigStore();

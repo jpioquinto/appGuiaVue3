@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, onBeforeMount, defineAsyncComponent } from 'vue'
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 //import AntecedenteCat from './antecedent/Catastro4T.vue';
 import AntecedenteRpp from './antecedent/Registro4T.vue'

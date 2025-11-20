@@ -3,7 +3,7 @@ import { computed, reactive, onBeforeMount, defineAsyncComponent } from 'vue'
 import SituacionRpp from './situation/Registro.vue'
 
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 const config = useConfigStore()
 

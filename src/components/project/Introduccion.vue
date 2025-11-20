@@ -2,7 +2,7 @@
 import { computed, ref, reactive, onBeforeMount, onMounted } from 'vue'
 
 import { isNumeric, removeFormatNumeric, isKeySpecial, isKeyCtrl, isNumericPositive } from '@/util'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type { StateProject } from '@/types/project'
 import { useConfigStore } from '@/stores/config'
 import numeral from 'numeral'

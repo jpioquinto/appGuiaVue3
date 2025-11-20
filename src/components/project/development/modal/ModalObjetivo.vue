@@ -4,7 +4,7 @@ import { notify } from '@kyvg/vue3-notification'
 
 //import { useConfigStore } from '@/stores/config'
 import type { ObjectiveModalProps } from '@/types/componentProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type { Objective } from '@/types/component'
 
 const props = defineProps<ObjectiveModalProps>()

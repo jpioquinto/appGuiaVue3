@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TableOfficeProps } from '@/types/partialProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import numeral from 'numeral'
 
 const props = defineProps<TableOfficeProps>() //['nombre', 'oficina', 'total', 'id', 'actualizar', 'estatus']

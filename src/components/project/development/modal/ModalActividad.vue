@@ -15,7 +15,7 @@ import {
 } from '@/util'
 
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type {
   Activity,
   Anexos,

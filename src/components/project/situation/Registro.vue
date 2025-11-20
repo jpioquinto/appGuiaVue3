@@ -2,7 +2,7 @@
 import { computed, watch, ref } from 'vue'
 
 import type { SituacionVertiente } from '@/types/project'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import GraficaAvance from './GraficaAvance.vue'
 import { makeHash } from '@/util'
 

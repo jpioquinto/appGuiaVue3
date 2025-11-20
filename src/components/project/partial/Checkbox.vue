@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CheckboxProps } from '@/types/partialProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import { ref, onBeforeMount } from 'vue'
 
 const props = defineProps<CheckboxProps>()

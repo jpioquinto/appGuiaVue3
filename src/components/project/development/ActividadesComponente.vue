@@ -11,7 +11,7 @@ import ModalAnexo from './modal/ModalAnexo.vue'
 
 import type { ActivitiesComponentProps } from '@/types/componentProps'
 import type { Activity, Anexos } from '@/types/activity'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import { useConfigStore } from '@/stores/config'
 import { isInteger } from '@/util'
 import numeral from 'numeral'

@@ -13,6 +13,19 @@ $sedatu-1: #611232 !important;
   }
 }
 
+.is-red-1 {
+  background-color: #9d2449 !important;
+  border-color: #9d2449 !important;
+  color: #ffffff !important;
+  a {
+    color: #ffffff !important;
+  }
+}
+
+.is-text-red-1 {
+  color: #9d2449 !important;
+}
+
 .titulo {
   display: flex;
   justify-content: flex-start;

@@ -5,7 +5,7 @@ import FooterApp from './partial/FooterAdmin.vue'
 <template>
   <div class="default-layout">
     <HeaderApp />
-    <main class="container">
+    <main class="container py-6">
       <router-view />
     </main>
     <FooterApp />

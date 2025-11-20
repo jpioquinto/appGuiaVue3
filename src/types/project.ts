@@ -1,7 +1,5 @@
-import { z } from 'zod'
-import type { CatComponentsSchema } from '@/schema/component-schema'
 import type { CatComponents, Component, Components } from './component'
-import type { Entregable, Entregables, Municipios, SubComponentes, Unidades } from './activity'
+import type { Entregables, Municipios, SubComponentes, Unidades } from './activity'
 import type { ChartSerie } from './partialProps'
 
 type Diagnostico = {

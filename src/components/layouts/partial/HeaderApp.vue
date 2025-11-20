@@ -12,7 +12,7 @@ import AccionGuardar from './AccionGuardar.vue'
 import AccionDescarga from './AccionDescarga.vue'
 
 import type { Components } from '@/types/component'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import { useConfigStore } from '@/stores/config'
 import { notify } from '@kyvg/vue3-notification'
 

@@ -5,7 +5,7 @@ import AgregarComponente from './development/actions/AgregarComponente.vue'
 import Componente from './development/Componente.vue'
 
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 const config = useConfigStore()
 

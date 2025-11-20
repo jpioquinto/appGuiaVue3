@@ -9,7 +9,7 @@ import ActividadesComponente from './ActividadesComponente.vue'
 
 import type { ComponentCardProps } from '@/types/componentProps'
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 //import type { Component } from '@/types/component'
 
 const config = useConfigStore()

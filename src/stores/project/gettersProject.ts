@@ -1,4 +1,4 @@
-import type { Entregable, Entregables, SubComponente, SubComponentes } from '@/types/activity'
+import type { Entregables, SubComponentes } from '@/types/activity'
 import type { Component } from '@/types/component'
 import type { StateProject } from '@/types/project'
 

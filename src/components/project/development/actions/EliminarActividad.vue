@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 const props = defineProps(['actividad_id', 'componente_id', 'vertiente'])
 

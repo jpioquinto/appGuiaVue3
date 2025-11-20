@@ -3,7 +3,7 @@ import { computed, ref, reactive, onMounted } from 'vue'
 import ListadoAnexo from './partial/ListadoAnexo.vue'
 
 import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type { AnexoExtra, Component, Components } from '@/types/component'
 import type { Anexos } from '@/types/activity'
 

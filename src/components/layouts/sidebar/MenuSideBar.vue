@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Step, Steps } from '@/types/config'
 import MenuItem from './MenuItem.vue'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 const props = defineProps<{ elementos: Steps }>()
 

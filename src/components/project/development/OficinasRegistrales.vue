@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import TablaOficina from '../partial/TablaOficina.vue'
 
 import type { RegistryOfficesProps } from '@/types/componentProps'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 
 defineProps<RegistryOfficesProps>() //['listado', 'oficinas', 'estatus']
 

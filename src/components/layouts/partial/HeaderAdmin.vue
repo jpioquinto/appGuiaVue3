@@ -7,7 +7,7 @@ import gobierno from '@/assets/images/logos/gob-mx.png'
       <div class="container">
         <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
           <div class="navbar-brand">
-            <a class="image is-128x128 py-6">
+            <a class="navbar-item">
               <img class="navbar-brand-logo" :src="gobierno" alt="SEDATU" />
             </a>
             <a
@@ -22,10 +22,10 @@ import gobierno from '@/assets/images/logos/gob-mx.png'
               <span aria-hidden="true"></span>
             </a>
           </div>
-          <div class="navbar-menu" id="navMenuGuia">
+          <div class="navbar-menu">
             <div class="navbar-end">
               <a class="navbar-item has-text-weight-semibold">
-                <span class="icon is-small"> <i class="fa fa-key"></i></span>
+                <span class="icon is-small"> <i class="fa fa-lock"></i></span>
                 Cerrar sesión
               </a>
             </div>

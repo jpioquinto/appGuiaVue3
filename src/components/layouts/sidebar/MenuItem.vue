@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 //import { useConfigStore } from '@/stores/config'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import type { Step } from '@/types/config'
 
 const props = defineProps<{ elemento: Step }>()

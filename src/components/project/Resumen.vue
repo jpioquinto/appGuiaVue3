@@ -1,6 +1,6 @@
 <script lang="ts">
 import { ref, reactive, defineComponent, provide } from 'vue'
-import { useProjectStore } from '@/stores/project'
+import { useProjectStore } from '@/stores/project/project'
 import { useConfigStore } from '@/stores/config'
 import { makeHash } from '@/util'
 import numeral from 'numeral'

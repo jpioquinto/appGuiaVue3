@@ -1,5 +1,13 @@
-import { StepSchema, StepsSchema } from '@/schema/config-schema'
 import { z } from 'zod'
+
+import {
+  PeriodProjectSchema,
+  PeriodProjectsSchema,
+  StepSchema,
+  StepsSchema,
+} from '@/schema/config-schema'
+import type { Entidad, Entidades } from './catalog'
+import type { Projects } from './project'
 
 export type Step = z.infer<typeof StepSchema>
 
@@ -39,3 +47,16 @@ export type StateConfig = {
 }
 
 export type Auth = Pick<StateConfig, 'nickname' | 'acciones' | 'token' | 'rol'>
+
+export type PeriodProject = z.infer<typeof PeriodProjectSchema>
+
+export type PeriodProjects = z.infer<typeof PeriodProjectsSchema>
+
+export type StateDashboard = {
+  years: PeriodProjects
+  entities: Record<number, Entidades>
+  projects: Record<Entidad['id'], Projects>
+  currentPeriod: PeriodProject
+  currentEntities: Entidades
+  currentProjects: Projects
+}

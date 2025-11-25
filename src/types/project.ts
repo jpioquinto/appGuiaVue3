@@ -1,6 +1,9 @@
-import type { CatComponents, Component, Components } from './component'
 import type { Entregables, Municipios, SubComponentes, Unidades } from './activity'
+import type { ProjectSchema, ProjectsSchema } from '@/schema/project-schema'
+import type { CatComponents, Component, Components } from './component'
 import type { ChartSerie } from './partialProps'
+
+import type z from 'zod'
 
 type Diagnostico = {
   anio: null | number
@@ -149,3 +152,7 @@ export type StateProject = VertProject & {
   estructura: Estructura
   homologos: ComponentHomologo
 }
+
+export type Project = z.infer<typeof ProjectSchema>
+
+export type Projects = z.infer<typeof ProjectsSchema>

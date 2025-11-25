@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useAuth } from '@/composables/useAuth'
 import gobierno from '@/assets/images/logos/gob-mx.png'
+const { logout } = useAuth()
 </script>
 <template>
   <header class="hero is-sedatu-1">
@@ -24,7 +26,7 @@ import gobierno from '@/assets/images/logos/gob-mx.png'
           </div>
           <div class="navbar-menu">
             <div class="navbar-end">
-              <a class="navbar-item has-text-weight-semibold">
+              <a @click.preventDefault="logout" class="navbar-item has-text-weight-semibold">
                 <span class="icon is-small"> <i class="fa fa-lock"></i></span>
                 Cerrar sesión
               </a>

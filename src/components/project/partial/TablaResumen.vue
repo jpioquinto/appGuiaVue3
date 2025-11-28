@@ -1,7 +1,7 @@
 <script lang="ts">
 import { ref, reactive, defineComponent, type PropType } from 'vue'
-import { useConfigStore } from '@/stores/config'
 import { useProjectStore } from '@/stores/project/project'
+import { useConfigStore } from '@/stores/config'
 
 import TablaAportaciones from './TablaAportaciones.vue'
 import FilasComponentes from './FilasComponentes.vue'

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { PeriodProject, StateDashboard } from '@/types/config'
+import type { StateDashboard } from '@/types/config'
 import type { Project } from '@/types/project'
 import $axios from '@/util/axios'
 import { baseURL } from '@/util'

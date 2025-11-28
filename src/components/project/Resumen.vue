@@ -1,7 +1,9 @@
 <script lang="ts">
 import { ref, reactive, defineComponent, provide } from 'vue'
 import { useProjectStore } from '@/stores/project/project'
+import type { Distribute } from '@/types/partialProps'
 import { useConfigStore } from '@/stores/config'
+import { DistributeKey } from '@/util/keys'
 import { makeHash } from '@/util'
 import numeral from 'numeral'
 
@@ -14,7 +16,6 @@ import {
   type FilasDistribucion,
 } from '@/types/project'
 import type { CatComponent, CatComponents, Component, Components } from '@/types/component'
-import { keyof } from 'zod'
 
 export default defineComponent({
   components: {
@@ -27,12 +28,21 @@ export default defineComponent({
 
     const redistribuir = ref<Resumen['capturado']>(project.obtenerRedistribuirMontos)
 
-    provide('redistribuir', {
+    /*provide('redistribuir', {
       redistribuir,
       redistribuirMontos: (newValue: boolean) => {
         redistribuir.value = newValue
       },
-    })
+    })*/
+
+    const service: Distribute = {
+      redistribuir: redistribuir.value,
+      redistribuirMontos: (newValue: boolean) => {
+        redistribuir.value = newValue
+      },
+    }
+
+    provide(DistributeKey, service)
 
     return {
       componentes: reactive<{ pec: CatComponents; pem: CatComponents }>({ pec: [], pem: [] }),

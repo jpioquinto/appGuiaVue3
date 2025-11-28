@@ -9,6 +9,10 @@ export const ProjectSchema = z.object({
   millar: z.number().nullable(),
   porcFed: z.number().nullable(),
   porcEst: z.number().nullable(),
+  estatal: z.optional(z.boolean()),
+  version: z.number(),
+  anio: z.number(),
+  estatus: z.number(),
 })
 
 export const ProjectsSchema = z.array(ProjectSchema)

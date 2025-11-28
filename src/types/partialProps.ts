@@ -45,7 +45,12 @@ export type ChartSerie = {
   modelo: number
 }
 
-export default interface Distribute {
+export interface DistributeBORRAR {
   redistribuir: Ref<boolean>
+  redistribuirMontos: (newValue: boolean) => void
+}
+
+export interface Distribute {
+  redistribuir: boolean
   redistribuirMontos: (newValue: boolean) => void
 }

@@ -11,10 +11,8 @@ import Programa from '../components/project/Programa.vue'
 import Resumen from '../components/project/Resumen.vue'
 import Resultados from '../components/project/Resultados.vue'
 import Anexos from '../components/project/AnexosActividad.vue'
-import Inicio from '../components/project/Inicio.vue'
-import Logout from '../components/login/LogoutApp.vue'
-import Home from '@/views/Home.vue'
 import Dashboard from '@/components/admin/Dashboard.vue'
+import Home from '@/views/Home.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -34,12 +32,6 @@ const routes: RouteRecordRaw[] = [
     name: 'admin-proyectos',
     component: Dashboard,
     meta: { layout: 'admin', requiresAuth: true },
-  },
-  {
-    path: '/inicio',
-    name: 'inicio',
-    component: Inicio,
-    meta: { layout: 'project', requiresAuth: true },
   },
   {
     path: '/proyecto',

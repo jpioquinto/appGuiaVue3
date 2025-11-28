@@ -1,4 +1,4 @@
-import type { Auth, StateConfig, Steps } from '@/types/config'
+import type { Accion, Auth, StateConfig, Steps } from '@/types/config'
 import { defineStore } from 'pinia'
 import $axios from '@/util/axios'
 import { baseURL } from '@/util'
@@ -14,7 +14,7 @@ export const useConfigStore = defineStore('config', {
     return {
       sidebar: [] as Steps,
       nickname: 'user',
-      acciones: {},
+      acciones: [],
       rol: null,
       token: localStorage.getItem('authToken') || null,
       layout: 'default',
@@ -53,6 +53,10 @@ export const useConfigStore = defineStore('config', {
     },
     getToken(state) {
       return state.token !== null
+    },
+    has(state) {
+      return (accionId: Accion['id']): boolean =>
+        state.acciones[accionId as keyof typeof state.acciones] ? true : false
     },
   },
   actions: {

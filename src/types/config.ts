@@ -32,8 +32,19 @@ type Loader = {
   classLoading: string
 }
 
+export type Accion = {
+  id: number | null
+  accion: string
+  modulo: string | null
+  clases: string | null
+  icono: string | null
+  orden: number | null
+}
+
+export type Acciones = Accion[]
+
 export type StateConfig = {
-  acciones: object
+  acciones: Record<number, Acciones>
   sidebar: Steps
   nickname: string
   token: null | string

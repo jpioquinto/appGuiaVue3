@@ -160,7 +160,7 @@ const loginUser = () => {
             router.push('/admin/proyectos')
             return
           }
-          router.push('/inicio')
+          router.push('/proyecto/introduccion')
         }, 1000)
       })
       .catch(handleErrorsLogin)

@@ -7,7 +7,7 @@ import {
   StepsSchema,
 } from '@/schema/config-schema'
 import type { Entidad, Entidades } from './catalog'
-import type { Projects } from './project'
+import type { Project, Projects } from './project'
 
 export type Step = z.infer<typeof StepSchema>
 
@@ -59,4 +59,5 @@ export type StateDashboard = {
   currentPeriod: PeriodProject
   currentEntities: Entidades
   currentProjects: Projects
+  currentProject: Project
 }

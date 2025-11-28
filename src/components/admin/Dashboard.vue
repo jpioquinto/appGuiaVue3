@@ -6,9 +6,8 @@ import type { PeriodProject } from '@/types/config'
 
 const dashboard = useDashboardStore()
 
-const disabledVertientes = ref<boolean>(true)
-const disabledEntities = ref<boolean>(true)
 const btnDisabled = ref<boolean>(true)
+const projectSelected = ref<number>(0)
 const entitySelected = ref<number>(0)
 const anioSelected = ref<number>(0)
 
@@ -18,6 +17,11 @@ const handleChangeYear = (payload: Event) => {
   const perioSelected = dashboard.years.find((period) => period.anio === anioSelected.value)
 
   if (perioSelected) {
+    projectSelected.value = 0
+    entitySelected.value = 0
+    btnDisabled.value = true
+
+    dashboard.currentProjects = []
     dashboard.currentPeriod = perioSelected
     dashboard.obtenerListadoEntidades(anioSelected.value)
   } else {
@@ -27,8 +31,23 @@ const handleChangeYear = (payload: Event) => {
 }
 
 const handleChangeEntity = (payload: Event) => {
+  dashboard.currentProjects = []
   if (+entitySelected.value > 0) {
+    projectSelected.value = 0
+    btnDisabled.value = true
     dashboard.obtenerListadoProyectos(+anioSelected.value, +entitySelected.value)
+  }
+}
+
+const handleChangeProject = (payload: Event) => {
+  if (+projectSelected.value > 0) {
+    const project = dashboard.currentProjects.find(
+      (project) => project.id === projectSelected.value,
+    )
+    if (project) {
+      dashboard.currentProject = project
+    }
+    btnDisabled.value = false
   }
 }
 
@@ -53,7 +72,7 @@ onMounted(() => dashboard.obtenerListadoAnios())
                   <option value="0">Seleccione el año</option>
                   <option
                     v-for="(period, index) in dashboard.years"
-                    :key="index"
+                    :key="index + '-year'"
                     :value="period.anio"
                   >
                     {{ period.anio }}
@@ -68,7 +87,7 @@ onMounted(() => dashboard.obtenerListadoAnios())
                   <option value="0">Seleccione la entidad</option>
                   <option
                     v-for="entity in dashboard.currentEntities"
-                    :key="entity.id"
+                    :key="entity.id + '-entity'"
                     :value="entity.id"
                   >
                     {{ entity.entidad }}
@@ -77,11 +96,17 @@ onMounted(() => dashboard.obtenerListadoAnios())
               </div>
             </div>
             <div class="field">
-              <label class="label">Vertiente</label>
+              <label class="label">Proyecto(s)</label>
               <div class="select is-fullwidth">
-                <select>
-                  <option>Seleccione la vertiente</option>
-                  <option>With options</option>
+                <select v-model="projectSelected" @change="handleChangeProject">
+                  <option value="0">Seleccione la vertiente</option>
+                  <option
+                    v-for="project in dashboard.currentProjects"
+                    :value="project.id"
+                    :key="project.id + '-project'"
+                  >
+                    {{ project.descVertiente }}
+                  </option>
                 </select>
               </div>
             </div>

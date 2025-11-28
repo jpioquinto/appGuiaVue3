@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 import type { PeriodProject, StateDashboard } from '@/types/config'
+import type { Project } from '@/types/project'
 import $axios from '@/util/axios'
 import { baseURL } from '@/util'
 
@@ -13,6 +14,7 @@ export const useDashboardStore = defineStore('dashboard', {
       currentPeriod: { anio: 0, total: 0, pemc: 0, pemr: 0, pemi: 0 },
       currentEntities: [],
       currentProjects: [],
+      currentProject: {} as Project,
     }
   },
   actions: {
